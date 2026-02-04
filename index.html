@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+   <style>
         :root {
             --verde-arvore: #2d5a27; --verde-claro: #4a7c43; --branco: #ffffff;
             --bege: #f5f5dc; --bege-escuro: #e8e8d0; --texto: #333;
@@ -20,8 +20,37 @@
         #login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, var(--verde-arvore), #1a3a1a); display: flex; justify-content: center; align-items: center; z-index: 2000; }
         .login-box { background: var(--branco); padding: 3rem; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         header { background: var(--verde-arvore); color: var(--branco); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
-        nav { background: var(--bege-escuro); padding: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
-        .nav-btn { background: var(--branco); border: 1px solid var(--verde-arvore); padding: 8px 15px; border-radius: 20px; cursor: pointer; color: var(--verde-arvore); font-weight: 600; }
+        
+        /* CORREÇÃO DO NAV PARA FICAR HORIZONTAL */
+        nav { 
+            background: var(--bege-escuro); 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: row; /* Força a linha horizontal */
+            justify-content: center; 
+            gap: 8px; 
+            flex-wrap: nowrap; /* Impede que os botões pulem para baixo */
+            overflow-x: auto; /* Adiciona scroll lateral se a tela for muito pequena */
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+
+        /* CORREÇÃO DOS BOTÕES PARA SE AJUSTAREM LADO A LADO */
+        .nav-btn { 
+            background: var(--branco); 
+            border: 1px solid var(--verde-arvore); 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            color: var(--verde-arvore); 
+            font-weight: 600;
+            white-space: nowrap; /* Impede que o texto do botão quebre linha */
+            flex: 1; /* Distribui o espaço igualmente entre os botões */
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
         .nav-btn.active { background: var(--verde-arvore); color: var(--branco); }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
         .card { background: var(--branco); padding: 25px; border-radius: 15px; box-shadow: var(--sombra); margin-bottom: 25px; }
@@ -53,7 +82,7 @@
         <nav>
             <button class="nav-btn active" onclick="nav('entradas', this)">Entradas</button>
             <button class="nav-btn" onclick="nav('saidas', this)">Saídas</button>
-            <button class="nav-btn" onclick="nav('fixos', this)">Gastos Fixos</button>
+            <button class="nav-btn" onclick="nav('fixos', this)">Fixos</button>
             <button class="nav-btn" onclick="nav('viagens', this)">Viagens</button>
             <button class="nav-btn" onclick="nav('dashboard', this)">Resumo</button>
         </nav>
@@ -233,3 +262,4 @@
     </script>
 </body>
 </html>
+
