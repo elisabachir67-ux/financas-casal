@@ -7,321 +7,557 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --verde-arvore: #2d5a27; --verde-claro: #4a7c43; --branco: #ffffff;
-            --bege: #f5f5dc; --bege-escuro: #e8e8d0; --texto: #333;
-            --vermelho: #c0392b; --verde-sucesso: #27ae60; --sombra: 0 4px 15px rgba(0,0,0,0.1);
+            --verde-arvore: #2d5a27; 
+            --verde-claro: #4a7c43; 
+            --branco: #ffffff;
+            --bege: #f5f5dc; 
+            --bege-escuro: #e8e8d0; 
+            --texto: #333;
+            --vermelho: #c0392b; 
+            --sombra: 0 4px 15px rgba(0,0,0,0.1);
+            --rosa-milestone: #a58282;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bege); color: var(--texto); min-height: 100vh; }
         .hidden { display: none !important; }
-        #login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, var(--verde-arvore), #1a3a1a); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: var(--branco); padding: 3rem; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
-        header { background: var(--verde-arvore); color: var(--branco); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
-        
+
+/* --- NOVO CSS DO LOGIN --- */
+
+/* Fundo Espacial/Verde Profundo */
+#login-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, #0f2027, #203a43, #2d5a27); /* Degradê Espaço -> Verde */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    overflow: hidden; /* Impede barra de rolagem pelos ícones animados */
+}
+
+/* Efeito Glassmorphism (Vidro Fosco) na caixa */
+.login-box {
+    background: rgba(255, 255, 255, 0.85); /* Branco translúcido */
+    backdrop-filter: blur(10px); /* O desfoque do vidro */
+    -webkit-backdrop-filter: blur(10px);
+    padding: 3rem;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    position: relative;
+    z-index: 2001; /* Fica acima dos ícones animados */
+}
+
+.login-box.error {
+    animation: shake 0.5s;
+    border: 1px solid var(--vermelho);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* --- ANIMAÇÃO DOS ÍCONES (FUTEBOL, CERVEJA, ESPAÇO) --- */
+.circles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    z-index: 1; /* Fica atrás da caixa de login */
+}
+
+.circles li {
+    position: absolute;
+    display: block;
+    list-style: none;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    animation: animate 25s linear infinite;
+    bottom: -150px;
+    color: rgba(255, 255, 255, 0.3); /* Cor dos ícones sutil */
+    font-size: 2rem;
+    text-align: center;
+}
+
+/* Configuração aleatória dos ícones flutuantes */
+.circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; font-size: 3rem; }
+.circles li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; font-size: 1.5rem; }
+.circles li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; font-size: 2rem; }
+.circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; font-size: 2.5rem; }
+.circles li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; font-size: 1.2rem; }
+.circles li:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; font-size: 4rem; }
+.circles li:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; font-size: 5rem; }
+.circles li:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; font-size: 1.5rem; }
+.circles li:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; font-size: 1rem; }
+.circles li:nth-child(10){ left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; font-size: 4rem; }
+
+@keyframes animate {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+        border-radius: 0;
+    }
+    100% {
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+        border-radius: 50%;
+    }
+}
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+header {
+    background: var(--verde-arvore);
+    color: var(--branco);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    position: relative; 
+    min-height: 70px;
+}
+
+header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    text-align: center;
+    width: 100%; 
+}
+
+.btn-logout {
+    position: absolute; 
+    right: 15px; 
+    top: 50%;
+    transform: translateY(-50%); 
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: var(--branco);
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: auto; 
+    margin: 0;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
         nav { 
-            background: var(--bege-escuro); 
-            padding: 10px; 
-            display: flex; 
-            flex-direction: row;
-            justify-content: center; 
-            gap: 8px; 
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
+            background: var(--bege-escuro); padding: 15px; display: flex; 
+            justify-content: center; gap: 8px; overflow-x: auto; 
+            position: sticky; top: 0; z-index: 100; 
         }
 
         .nav-btn { 
-            background: var(--branco); 
-            border: 1px solid var(--verde-arvore); 
-            padding: 8px 12px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            color: var(--verde-arvore); 
-            font-weight: 600;
-            white-space: nowrap;
-            flex: 1;
-            text-align: center;
-            font-size: 0.9rem;
+            background: var(--branco); border: 1px solid var(--verde-arvore); padding: 8px 18px; 
+            border-radius: 25px; cursor: pointer; color: var(--verde-arvore); font-weight: 600;
+            white-space: nowrap; transition: 0.3s;
         }
-
         .nav-btn.active { background: var(--verde-arvore); color: var(--branco); }
+
         .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
         .card { background: var(--branco); padding: 25px; border-radius: 15px; box-shadow: var(--sombra); margin-bottom: 25px; }
+        
         h2 { color: var(--verde-arvore); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; width: 100%; margin-bottom: 10px; }
-        .btn-add { background: var(--verde-arvore); color: var(--branco); border: none; font-weight: bold; cursor: pointer; }
-        .progress-container { background: #eee; height: 25px; border-radius: 20px; margin: 15px 0; overflow: hidden; border: 1px solid #ddd; }
-        .progress-bar { height: 100%; transition: 0.8s ease-in-out; width: 0%; background: var(--verde-claro); }
-        .summary-val { font-weight: bold; font-size: 1.2rem; }
+        
+        .btn-add { background: var(--verde-arvore); color: var(--branco); border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+
+        .input-group { display: flex; gap: 10px; }
+        .viagem-card { border: 1px solid #eee; border-radius: 15px; padding: 20px; margin-top: 20px; position: relative; }
+        .progress-wrapper { margin: 20px 0; }
+        .progress-bg { background: #eee; height: 14px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--verde-arvore); transition: 0.5s; width: 0%; }
+        .milestones { display: flex; justify-content: space-between; margin-top: 8px; }
+        .milestone { font-size: 0.8rem; color: var(--rosa-milestone); display: flex; align-items: center; gap: 4px; }
+        .milestone.active { color: var(--verde-arvore); font-weight: bold; }
+        
+        .registro-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #eee; }
+        .btn-delete { color: var(--vermelho); cursor: pointer; border: none; background: none; }
         .multi-select { height: 120px !important; }
 
-        /* Estilos da Lista de Registros */
-        .registro-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        .registro-item:last-child { border-bottom: none; }
-        .actions { display: flex; gap: 10px; }
-        .btn-edit { color: #3498db; cursor: pointer; border: none; background: none; width: auto; margin: 0; padding: 5px; }
-        .btn-delete { color: var(--vermelho); cursor: pointer; border: none; background: none; width: auto; margin: 0; padding: 5px; }
+        @media (min-width: 768px) {
+            nav {
+                justify-content: flex-start; 
+                padding-left: 20px;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <i class="fas fa-heart" style="font-size: 3rem; color: var(--verde-arvore);"></i>
-            <h1 style="margin: 1rem 0;">Finanças Casal</h1>
-            <input type="password" id="login-pass" placeholder="Senha">
-            <button class="btn-add" onclick="doLogin()">ENTRAR</button>
+<div id="login-screen">
+    <ul class="circles">
+        <li><i class="fas fa-beer"></i></li>
+        <li><i class="fas fa-futbol"></i></li>
+        <li><i class="fas fa-rocket"></i></li>
+        <li><i class="fas fa-star"></i></li>
+        <li><i class="fas fa-futbol"></i></li>
+        <li><i class="fas fa-beer"></i></li>
+        <li><i class="fas fa-user-astronaut"></i></li>
+        <li><i class="fas fa-satellite"></i></li>
+        <li><i class="fas fa-futbol"></i></li>
+        <li><i class="fas fa-meteor"></i></li>
+    </ul>
+
+    <div class="login-box">
+        <div style="margin-bottom: 20px;">
+            <i class="fas fa-heart" style="font-size: 3.5rem; color: var(--verde-arvore); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));"></i>
         </div>
+        
+        <h1 style="margin: 1rem 0; font-weight: 700; color: #2d5a27;">Fernanceiro</h1>
+        <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Gestão Financeira & Sonhos</p>
+        
+        <input type="password" id="login-pass" placeholder="Senha de Acesso" onkeypress="if(event.key === 'Enter') doLogin()" 
+               style="background: rgba(255,255,255,0.9); border: 1px solid #ccc;">
+        
+        <button class="btn-add" onclick="doLogin()" 
+                style="width: 100%; padding: 15px; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(45, 90, 39, 0.4); transition: transform 0.2s;">
+            ENTRAR
+        </button>
     </div>
+</div>
+<div id="app" class="hidden">
+    <header>
+        <div style="width: 80px;"></div> <h3><i class="fas fa-tree"></i> Gestão Elisa & Fernanda</h3>
+        <button class="btn-logout" onclick="location.reload()">Sair</button>
+    </header>
+    
+<nav>
+    <button class="nav-btn active" onclick="nav('entradas', this)">
+        <i class="fas fa-arrow-down"></i> Entradas
+    </button>
+    <button class="nav-btn" onclick="nav('saidas', this)">
+        <i class="fas fa-arrow-up"></i> Saídas
+    </button>
+    <button class="nav-btn" onclick="nav('fixos', this)">
+        <i class="fas fa-thumbtack"></i> Fixos
+    </button>
+    <button class="nav-btn" onclick="nav('viagens', this)">
+        <i class="fas fa-plane"></i> Viagens
+    </button>
+    <button class="nav-btn" onclick="nav('dashboard', this)">
+        <i class="fas fa-chart-pie"></i> Resumo
+    </button>
+</nav>
 
-    <div id="app" class="hidden">
-        <header>
-            <h3><i class="fas fa-tree"></i> Gestão Elisa & Fernanda</h3>
-        </header>
-        <nav>
-            <button class="nav-btn active" onclick="nav('entradas', this)">Entradas</button>
-            <button class="nav-btn" onclick="nav('saidas', this)">Saídas</button>
-            <button class="nav-btn" onclick="nav('fixos', this)">Fixos</button>
-            <button class="nav-btn" onclick="nav('viagens', this)">Viagens</button>
-            <button class="nav-btn" onclick="nav('dashboard', this)">Resumo</button>
-        </nav>
+    <div class="container">
+        <section id="sec-entradas" class="card">
+            <h2><i class="fas fa-arrow-up"></i> Registrar Entrada</h2>
+            <select id="ent-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
+            <select id="ent-desc"><option>💰 Salário</option><option>📈 Investimento</option><option>🎁 Paitrocínio</option></select>
+            <input type="number" id="ent-val" step="0.01" placeholder="Valor R$">
+            <input type="date" id="ent-date">
+            <button class="btn-add" onclick="saveData('entries', 'ent')">Salvar Entrada</button>
+        </section>
 
-        <div class="container">
-            <section id="sec-entradas" class="card">
-                <h2><i class="fas fa-arrow-up"></i> Registrar Entrada</h2>
-                <select id="ent-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
-                <select id="ent-desc">
-                    <option>Salário</option><option>Investimento</option><option>Paitrocínio</option>
-                </select>
-                <input type="number" id="ent-val" step="0.01" placeholder="Valor R$">
-                <input type="date" id="ent-date">
-                <button class="btn-add" onclick="saveData('entries', 'ent')">Salvar Entrada</button>
-            </section>
+        <section id="sec-saidas" class="card hidden">
+            <h2><i class="fas fa-arrow-down"></i> Saída Variável</h2>
+            <select id="sai-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
+            <select id="sai-desc">
+                <option>🍴 Alimentação</option><option>💳 Cartão de Crédito</option><option>🛒 Mercado</option>
+                <option>🚗 Uber</option><option>🔑 Locação de Carro</option><option>🎡 Passeios</option>
+                <option>✈️ Viagem</option><option>🏥 Saúde</option><option>🎓 Educação</option><option>👕 Vestuário</option>
+            </select>
+            <input type="number" id="sai-val" step="0.01" placeholder="Valor R$">
+            <input type="date" id="sai-date">
+            <button class="btn-add" onclick="saveData('outs', 'sai')">Salvar Saída</button>
+        </section>
 
-            <section id="sec-saidas" class="card hidden">
-                <h2><i class="fas fa-arrow-down"></i> Saída Variável</h2>
-                <select id="sai-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
-                <select id="sai-desc">
-                    <option>Alimentação</option>
-                    <option>Cartão de Crédito</option>
-                    <option>Mercado</option>
-                    <option>Uber</option>
-                    <option>Locação de Carro</option>
-                    <option>Passeios</option>
-                    <option>Viagem</option>
-                    <option>Saúde</option>
-                    <option>Educação</option>
-                    <option>Vestuário</option>
-                </select>
-                <input type="number" id="sai-val" step="0.01" placeholder="Valor R$">
-                <input type="date" id="sai-date">
-                <button class="btn-add" onclick="saveData('outs', 'sai')">Salvar Saída</button>
-            </section>
+        <section id="sec-fixos" class="card hidden">
+            <h2><i class="fas fa-thumbtack"></i> Gastos Fixos</h2>
+            <select id="fix-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
+            <select id="fix-desc">
+                <option>💳 Cartão de Crédito</option><option>🧾 DAS</option><option>📱 Conta de Celular</option>
+                <option>💧 Conta de Água</option><option>💄 Cosméticos</option><option>📺 Streamings</option>
+            </select>
+            <input type="number" id="fix-val" step="0.01" placeholder="Valor Mensal R$">
+            <input type="month" id="fix-month">
+            <button class="btn-add" onclick="saveData('fixos', 'fix')">Salvar Gasto Fixo</button>
+        </section>
 
-            <section id="sec-fixos" class="card hidden">
-                <h2><i class="fas fa-thumbtack"></i> Gastos Fixos</h2>
-                <select id="fix-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
-                <select id="fix-desc">
-                    <option>Cartão de Crédito</option><option>DAS</option><option>Conta de Celular</option>
-                    <option>Conta de Água</option><option>Cosméticos</option><option>Streamings</option>
-                </select>
-                <input type="number" id="fix-val" step="0.01" placeholder="Valor Mensal R$">
-                <input type="month" id="fix-month">
-                <button class="btn-add" onclick="saveData('fixos', 'fix')">Salvar Gasto Fixo</button>
-            </section>
-
-            <section id="sec-viagens" class="card hidden">
-                <h2><i class="fas fa-plane"></i> Planejar Viagem</h2>
-                <input type="text" id="via-desc" placeholder="Destino">
-                <input type="number" id="via-val" placeholder="Meta Total R$">
-                <button class="btn-add" onclick="saveData('viagens', 'via')">Criar Viagem</button>
-                <div id="lista-viagens"></div>
-            </section>
-
-            <section id="sec-dashboard" class="card hidden">
-                <h2><i class="fas fa-chart-bar"></i> Análise de Gastos</h2>
-                <label>Analisar de:</label>
-                <select id="dash-user" onchange="updateDash()">
-                    <option value="Todos">Todos (Geral)</option><option>Elisa</option><option>Fernanda</option><option>Conjunto</option>
-                </select>
-                <label>Selecione os meses:</label>
-                <select id="dash-months" class="multi-select" multiple onchange="updateDash()">
-                    <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
-                    <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
-                    <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
-                    <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
-                </select>
-                <div style="margin-top:20px; display:flex; gap:20px;">
-                    <p>Entradas: <span id="res-ent" class="summary-val" style="color:green">R$ 0</span></p>
-                    <p>Saídas: <span id="res-sai" class="summary-val" style="color:red">R$ 0</span></p>
+        <section id="sec-viagens" class="card hidden">
+            <h2><i class="fas fa-plane"></i> Viagens</h2>
+            <div class="input-group">
+                <input type="text" id="via-destino" placeholder="Vitória">
+                <input type="date" id="via-data">
+            </div>
+            <div style="background: #fdfdfd; padding: 15px; border: 1px dashed #ccc; border-radius: 10px; margin-bottom: 15px;">
+                <p style="margin-bottom: 10px; font-weight: bold; font-size: 0.9rem;">Adicionar Opções de Custo:</p>
+                <div class="input-group">
+                    <select id="via-cat-nome">
+                        <option>Hospedagem</option><option>Passagem</option><option>Alimentação</option>
+                        <option>Locação de Carro</option><option>Passeios</option>
+                    </select>
+                    <input type="number" id="via-cat-valor" placeholder="Valor R$">
+                    <button onclick="addCatItem()" style="width: 50px; background: var(--verde-arvore); color: white; border-radius: 8px; border: none; cursor: pointer;">+</button>
                 </div>
-                <div style="height: 300px; margin-top:20px;"><canvas id="barChart"></canvas></div>
+                <div id="temp-cats" style="font-size: 0.85rem; color: #666; margin-top: 5px;"></div>
+            </div>
+            <button class="btn-add" onclick="saveViagem()">Criar Viagem</button>
+            <div id="lista-viagens"></div>
+        </section>
 
-                <h2 style="margin-top:40px;"><i class="fas fa-list"></i> Histórico de Registros</h2>
-                <div id="historico-registros"></div>
-            </section>
-        </div>
+        <section id="sec-dashboard" class="card hidden">
+            <h2><i class="fas fa-chart-bar"></i> Resumo</h2>
+            <select id="dash-user" onchange="updateDash()">
+                <option value="Todos">Todos (Geral)</option><option>Elisa</option><option>Fernanda</option><option>Conjunto</option>
+            </select>
+            <select id="dash-months" class="multi-select" multiple onchange="updateDash()">
+                <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+            </select>
+            <div style="margin-top:20px; display:flex; flex-wrap: wrap; gap:20px;">
+                <p>Entradas: <span id="res-ent" style="color:green; font-weight:bold;">R$ 0</span></p>
+                <p>Saídas: <span id="res-sai" style="color:red; font-weight:bold;">R$ 0</span></p>
+                <p>Saldo: <span id="res-saldo" style="font-weight:bold;">R$ 0</span></p>
+            </div>
+            <div style="height: 300px; margin-top:20px;"><canvas id="barChart"></canvas></div>
+            <h2 style="margin-top:40px;"><i class="fas fa-list"></i> Histórico</h2>
+            <div id="historico-registros"></div>
+        </section>
     </div>
+</div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAjXyxGsIRmkJ83vUQvcovBh-ZpaZE7Qkc",
-            authDomain: "financas-casal-dd5fe.firebaseapp.com",
-            projectId: "financas-casal-dd5fe",
-            storageBucket: "financas-casal-dd5fe.firebasestorage.app",
-            messagingSenderId: "775987268991",
-            appId: "1:775987268991:web:afe10e5e99faea281c9e4a"
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAjXyxGsIRmkJ83vUQvcovBh-ZpaZE7Qkc",
+        authDomain: "financas-casal-dd5fe.firebaseapp.com",
+        projectId: "financas-casal-dd5fe",
+        storageBucket: "financas-casal-dd5fe.firebasestorage.app",
+        messagingSenderId: "775987268991",
+        appId: "1:775987268991:web:afe10e5e99faea281c9e4a"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let state = { entries: [], outs: [], fixos: [], viagens: [] };
+    let itensTemp = [];
+
+function doLogin() {
+    const passInput = document.getElementById('login-pass');
+    const senhaDigitada = passInput.value;
+    
+    if (senhaDigitada === "1234") {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        sync(); 
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Senha Incorreta',
+            text: 'Tente novamente, Elisa ou Fernanda!',
+            confirmButtonColor: '#2d5a27',
+            timer: 2000
+        });
+
+        const loginBox = document.querySelector('.login-box');
+        loginBox.classList.add('error');
+        setTimeout(() => loginBox.classList.remove('error'), 500); 
+
+        passInput.value = ""; 
+        passInput.focus();
+    }
+}
+    function nav(id, btn) {
+        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('sec-'+id).classList.remove('hidden');
+        btn.classList.add('active');
+        if(id === 'dashboard') updateDash();
+        if(id === 'viagens') renderViagens();
+    }
+
+    function sync() {
+        db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
+            if(doc.exists) {
+                state = doc.data();
+                if(!document.getElementById('sec-dashboard').classList.contains('hidden')) updateDash();
+                if(!document.getElementById('sec-viagens').classList.contains('hidden')) renderViagens();
+            } else { db.collection("dados").doc("financeiro_vfinal").set(state); }
+        });
+    }
+
+    function addCatItem() {
+        const nome = document.getElementById('via-cat-nome').value;
+        const valor = parseFloat(document.getElementById('via-cat-valor').value);
+        if(!valor) return;
+        itensTemp.push({ nome, valor, pago: false });
+        document.getElementById('via-cat-valor').value = '';
+        document.getElementById('temp-cats').innerHTML = itensTemp.map(i => `• ${i.nome}: R$ ${i.valor.toFixed(2)}`).join('<br>');
+    }
+
+    async function saveViagem() {
+        const destino = document.getElementById('via-destino').value;
+        const data = document.getElementById('via-data').value;
+        if(!destino || itensTemp.length === 0) return Swal.fire('Aviso', 'Preencha o destino e adicione itens!', 'warning');
+        
+        const totalMeta = itensTemp.reduce((a, b) => a + b.valor, 0);
+        if(!state.viagens) state.viagens = [];
+        
+        state.viagens.push({
+            id: Date.now(),
+            destino: destino,
+            data: data,
+            meta: totalMeta,
+            juntado: 0,
+            itens: [...itensTemp],
+            milestones: [] 
+        });
+        
+        itensTemp = [];
+        document.getElementById('via-destino').value = '';
+        document.getElementById('temp-cats').innerHTML = '';
+        await db.collection("dados").doc("financeiro_vfinal").set(state);
+        Swal.fire('Sucesso', 'Viagem criada!', 'success');
+        renderViagens();
+    }
+
+    function renderViagens() {
+        const div = document.getElementById('lista-viagens');
+        if(!state.viagens) return div.innerHTML = "";
+
+        div.innerHTML = state.viagens.map(v => {
+            const perc = (v.juntado / v.meta) * 100;
+            const falta = v.meta - v.juntado;
+            return `
+                <div class="viagem-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0;">${v.destino}</h3>
+                        <i class="fas fa-trash" style="color:red; cursor:pointer" onclick="deleteItem('viagens', ${v.id})"></i>
+                    </div>
+                    <p style="font-size:0.9rem; color:#666; margin:5px 0;">Meta: R$ ${v.meta.toFixed(2)} | Falta: R$ ${falta.toFixed(2)}</p>
+                    
+                    <div class="progress-wrapper">
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width:${Math.min(perc, 100)}%"></div>
+                        </div>
+                        <div class="milestones">
+                            <div class="milestone ${perc >= 25 ? 'active' : ''}"><i class="fas fa-circle"></i> 25%</div>
+                            <div class="milestone ${perc >= 50 ? 'active' : ''}"><i class="fas fa-circle"></i> 50%</div>
+                            <div class="milestone ${perc >= 75 ? 'active' : ''}"><i class="fas fa-circle"></i> 75%</div>
+                            <div class="milestone ${perc >= 100 ? 'active' : ''}"><i class="fas fa-circle"></i> 100%</div>
+                        </div>
+                    </div>
+                    <button class="btn-add" onclick="addViagemVal(${v.id})">+ Adicionar Valor</button>
+                </div>`;
+        }).join('');
+    }
+
+    async function addViagemVal(id) {
+        const { value: extra } = await Swal.fire({ title: 'Adicionar à reserva', input: 'number', showCancelButton: true });
+        if(!extra) return;
+
+        const v = state.viagens.find(x => x.id === id);
+        v.juntado += parseFloat(extra);
+        const novoPerc = (v.juntado / v.meta) * 100;
+
+        v.itens.forEach(item => {
+            if (v.juntado >= item.valor && !item.pago) {
+                item.pago = true;
+                Swal.fire('Item Pago!', `${item.nome} foi quitado!`, 'success');
+            }
+        });
+
+        const metas = [25, 50, 75, 100];
+        const textos = {
+            25: "parábens, você pagou um quarto da viagem. faltam só mais 3 hein",
+            50: "uhul, ja foi metade. 2 patinhos na lagoa",
+            75: "a booaa, próxima piscada já é trip",
+            100: "conta quitada! bora programar a próxima!"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        let state = { entries: [], outs: [], fixos: [], viagens: [] };
+        if(!v.milestones) v.milestones = [];
+        metas.forEach(m => {
+            if (novoPerc >= m && !v.milestones.includes(m)) {
+                v.milestones.push(m);
+                Swal.fire({ title: m + '% Concluído!', text: textos[m], icon: 'info' });
+            }
+        });
 
-        function doLogin() {
-            if(document.getElementById('login-pass').value === "1234") {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app').classList.remove('hidden');
-                sync();
-            } else { alert("Senha incorreta"); }
-        }
+        await db.collection("dados").doc("financeiro_vfinal").set(state);
+        renderViagens();
+    }
 
-        function nav(id, btn) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('sec-'+id).classList.remove('hidden');
-            btn.classList.add('active');
-            if(id === 'dashboard') updateDash();
-            if(id === 'viagens') renderViagens();
-        }
+    async function saveData(type, prefix) {
+        const val = parseFloat(document.getElementById(prefix+'-val').value);
+        const desc = document.getElementById(prefix+'-desc').value;
+        const dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value || new Date().toISOString().split('T')[0];
+        const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
+        if(!val || !desc) return Swal.fire('Aviso', 'Preencha tudo!', 'warning');
+        state[type].push({ val, desc, date: dateInput.length === 7 ? dateInput + "-01" : dateInput, owner, id: Date.now() });
+        await db.collection("dados").doc("financeiro_vfinal").set(state);
+        Swal.fire('Sucesso', 'Salvo!', 'success');
+        document.getElementById(prefix+'-val').value = '';
+    }
 
-        function sync() {
-            db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
-                if(doc.exists) {
-                    state = doc.data();
-                    if(document.getElementById('sec-dashboard').className.indexOf('hidden') === -1) updateDash();
-                } else {
-                    db.collection("dados").doc("financeiro_vfinal").set(state);
-                }
-            });
-        }
-
-        async function saveData(type, prefix) {
-            const val = parseFloat(document.getElementById(prefix+'-val').value);
-            const desc = document.getElementById(prefix+'-desc').value;
-            const dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value || new Date().toISOString().split('T')[0];
-            const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
-
-            if(!val || !desc) return alert("Preencha todos os campos");
-
-            const date = dateInput.length === 7 ? dateInput + "-01" : dateInput;
-            state[type].push({ val, desc, date, owner, id: Date.now(), juntado: 0 });
+    async function deleteItem(type, id) {
+        const res = await Swal.fire({ title: 'Excluir?', icon: 'warning', showCancelButton: true });
+        if (res.isConfirmed) {
+            state[type] = state[type].filter(item => item.id !== id);
             await db.collection("dados").doc("financeiro_vfinal").set(state);
-            alert("Salvo com sucesso!");
-            document.getElementById(prefix+'-val').value = '';
+            type === 'viagens' ? renderViagens() : updateDash();
         }
+    }
 
-        // Funções de Editar e Excluir
-        async function deleteItem(type, id) {
-            if(confirm("Tem certeza que deseja excluir este registro?")) {
-                state[type] = state[type].filter(item => item.id !== id);
-                await db.collection("dados").doc("financeiro_vfinal").set(state);
-                updateDash();
-            }
-        }
-
-        async function editItem(type, id) {
-            const item = state[type].find(x => x.id === id);
-            const novoVal = prompt("Novo valor:", item.val);
-            if (novoVal !== null) {
-                item.val = parseFloat(novoVal);
-                await db.collection("dados").doc("financeiro_vfinal").set(state);
-                updateDash();
-            }
-        }
-
-        function renderViagens() {
-            const div = document.getElementById('lista-viagens');
-            div.innerHTML = state.viagens.map(v => {
-                const perc = Math.min(((v.juntado || 0) / v.val) * 100, 100);
-                return `
-                    <div style="border:1px solid #ddd; padding:15px; border-radius:10px; margin-top:10px;">
-                        <strong>${v.desc}</strong> - Meta: R$ ${v.val.toFixed(2)}
-                        <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div>
-                        <p>Juntado: R$ ${(v.juntado || 0).toFixed(2)} (${perc.toFixed(1)}%)</p>
-                        <button onclick="addViagemVal(${v.id})" style="padding:5px; margin-top:5px;">+ Adicionar Dinheiro</button>
-                    </div>`;
-            }).join('');
-        }
-
-        async function addViagemVal(id) {
-            const extra = parseFloat(prompt("Quanto deseja adicionar à reserva desta viagem?"));
-            if(extra) {
-                const v = state.viagens.find(x => x.id === id);
-                v.juntado = (v.juntado || 0) + extra;
-                await db.collection("dados").doc("financeiro_vfinal").set(state);
-                renderViagens();
-            }
-        }
-
-        let barChart;
-        function updateDash() {
-            const user = document.getElementById('dash-user').value;
-            const selectedMonths = Array.from(document.getElementById('dash-months').selectedOptions).map(o => parseInt(o.value));
-            if(selectedMonths.length === 0) selectedMonths.push(new Date().getMonth());
-
-            const filterFn = (item) => {
-                const m = new Date(item.date + "T00:00:00").getMonth();
-                return (user === "Todos" || item.owner === user) && selectedMonths.includes(m);
-            };
-
-            const entItems = state.entries.filter(filterFn);
-            const outItems = state.outs.filter(filterFn);
-            const fixItems = state.fixos.filter(filterFn);
-
-            const ent = entItems.reduce((a,b)=>a+b.val, 0);
-            const sai = outItems.reduce((a,b)=>a+b.val, 0) + fixItems.reduce((a,b)=>a+b.val, 0);
-
-            document.getElementById('res-ent').innerText = `R$ ${ent.toFixed(2)}`;
-            document.getElementById('res-sai').innerText = `R$ ${sai.toFixed(2)}`;
-
-            // Renderizar Gráfico
-            const ctx = document.getElementById('barChart').getContext('2d');
-            if(barChart) barChart.destroy();
-            barChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Entradas', 'Saídas Totais'],
-                    datasets: [{ label: 'R$', data: [ent, sai], backgroundColor: ['#27ae60', '#c0392b'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // Renderizar Histórico (Lista para editar/limpar)
-            const histDiv = document.getElementById('historico-registros');
-            let html = "";
-            
-            const allItems = [
-                ...entItems.map(i => ({...i, type: 'entries', label: '(E)'})),
-                ...outItems.map(i => ({...i, type: 'outs', label: '(S)'})),
-                ...fixItems.map(i => ({...i, type: 'fixos', label: '(F)'}))
-            ].sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            html = allItems.map(item => `
-                <div class="registro-item">
-                    <span>${item.date.split('-').reverse().join('/')} - <b>${item.label}</b> ${item.desc} (R$ ${item.val.toFixed(2)})</span>
-                    <div class="actions">
-                        <button class="btn-edit" onclick="editItem('${item.type}', ${item.id})"><i class="fas fa-edit"></i></button>
-                        <button class="btn-delete" onclick="deleteItem('${item.type}', ${item.id})"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
-            histDiv.innerHTML = html || "<p>Nenhum registro no período.</p>";
-        }
-    </script>
+    let barChart;
+    function updateDash() {
+        const user = document.getElementById('dash-user').value;
+        const selMonths = Array.from(document.getElementById('dash-months').selectedOptions).map(o => parseInt(o.value));
+        const filterFn = (i) => (user === "Todos" || i.owner === user) && (selMonths.length === 0 || selMonths.includes(new Date(i.date + "T00:00:00").getMonth()));
+        
+        const ent = (state.entries || []).filter(filterFn).reduce((a,b)=>a+b.val, 0);
+        const sai = (state.outs || []).filter(filterFn).reduce((a,b)=>a+b.val, 0) + (state.fixos || []).filter(filterFn).reduce((a,b)=>a+b.val, 0);
+        const saldo = ent - sai;
+        
+        document.getElementById('res-ent').innerText = `R$ ${ent.toFixed(2)}`;
+        document.getElementById('res-sai').innerText = `R$ ${sai.toFixed(2)}`;
+        document.getElementById('res-saldo').innerText = `R$ ${saldo.toFixed(2)}`;
+        document.getElementById('res-saldo').style.color = saldo >= 0 ? "blue" : "red";
+        
+        const ctx = document.getElementById('barChart').getContext('2d');
+        if(barChart) barChart.destroy();
+        barChart = new Chart(ctx, { 
+            type: 'bar', 
+            data: { 
+                labels: ['Entradas', 'Saídas', 'Saldo'], 
+                datasets: [{ 
+                    label: 'R$', 
+                    data: [ent, sai, saldo], 
+                    backgroundColor: ['#27ae60', '#c0392b', saldo >= 0 ? '#2980b9' : '#e74c3c'] 
+                }] 
+            }, 
+            options: { responsive: true, maintainAspectRatio: false } 
+        });
+        
+        const all = [...(state.entries||[]).filter(filterFn).map(i=>({...i,type:'entries',l:'(E)'})), ...(state.outs||[]).filter(filterFn).map(i=>({...i,type:'outs',l:'(S)'})), ...(state.fixos||[]).filter(filterFn).map(i=>({...i,type:'fixos',l:'(F)'}))].sort((a,b)=>new Date(b.date)-new Date(a.date));
+        document.getElementById('historico-registros').innerHTML = all.map(i => `<div class="registro-item"><span>${i.date.split('-').reverse().join('/')} - <b>${i.l}</b> ${i.desc} (R$ ${i.val.toFixed(2)})</span><button class="btn-delete" onclick="deleteItem('${i.type}', ${i.id})"><i class="fas fa-trash"></i></button></div>`).join('');
+    }
+</script>
 </body>
 </html>
+
