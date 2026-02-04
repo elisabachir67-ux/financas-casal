@@ -9,128 +9,118 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --verde: #2d5a27; --verde-claro: #4a7c43; --bege: #f5f5dc; --branco: #ffffff; --vermelho: #c0392b; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bege); margin: 0; color: #333; }
+        :root {
+            --verde-arvore: #2d5a27; --verde-claro: #4a7c43; --branco: #ffffff;
+            --bege: #f5f5dc; --bege-escuro: #e8e8d0; --texto: #333;
+            --vermelho: #c0392b; --verde-sucesso: #27ae60; --sombra: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bege); color: var(--texto); min-height: 100vh; }
         .hidden { display: none !important; }
-        header { background: var(--verde); color: white; padding: 1rem; text-align: center; }
-        nav { display: flex; overflow-x: auto; background: #e8e8d0; padding: 10px; gap: 8px; position: sticky; top: 0; z-index: 100; }
-        .nav-btn { background: white; border: 1px solid var(--verde); padding: 8px 15px; border-radius: 20px; white-space: nowrap; cursor: pointer; font-weight: 600; color: var(--verde); }
-        .nav-btn.active { background: var(--verde); color: white; }
-        .container { padding: 15px; max-width: 800px; margin: auto; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h2 { color: var(--verde); font-size: 1.2rem; margin-top: 0; border-bottom: 2px solid var(--bege); padding-bottom: 10px; }
-        label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9rem; }
-        input, select, button { width: 100%; padding: 12px; margin: 5px 0 15px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        .btn-add { background: var(--verde); color: white; border: none; font-weight: bold; cursor: pointer; }
-        #login-screen { position: fixed; inset: 0; background: var(--verde); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: white; padding: 2.5rem; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
-        .multi-select { height: 100px !important; }
-        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .summary-item { background: var(--bege); padding: 10px; border-radius: 10px; text-align: center; }
-        .val { font-weight: bold; display: block; font-size: 1.1rem; }
+        #login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, var(--verde-arvore), #1a3a1a); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: var(--branco); padding: 3rem; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        header { background: var(--verde-arvore); color: var(--branco); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
+        nav { background: var(--bege-escuro); padding: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
+        .nav-btn { background: var(--branco); border: 1px solid var(--verde-arvore); padding: 8px 15px; border-radius: 20px; cursor: pointer; color: var(--verde-arvore); font-weight: 600; }
+        .nav-btn.active { background: var(--verde-arvore); color: var(--branco); }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        .card { background: var(--branco); padding: 25px; border-radius: 15px; box-shadow: var(--sombra); margin-bottom: 25px; }
+        h2 { color: var(--verde-arvore); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; width: 100%; margin-bottom: 10px; }
+        .btn-add { background: var(--verde-arvore); color: var(--branco); border: none; font-weight: bold; cursor: pointer; }
+        .progress-container { background: #eee; height: 25px; border-radius: 20px; margin: 15px 0; overflow: hidden; border: 1px solid #ddd; }
+        .progress-bar { height: 100%; transition: 0.8s ease-in-out; width: 0%; background: var(--verde-claro); }
+        .dash-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .summary-val { font-weight: bold; font-size: 1.2rem; }
+        .multi-select { height: 120px !important; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--verde); margin-bottom: 1rem;"></i>
-            <h2>Finanças Casal</h2>
-            <input type="password" id="pass" placeholder="Senha">
-            <button class="btn-add" onclick="login()">ENTRAR</button>
+            <i class="fas fa-heart" style="font-size: 3rem; color: var(--verde-arvore);"></i>
+            <h1 style="margin: 1rem 0;">Finanças Casal</h1>
+            <input type="password" id="login-pass" placeholder="Senha">
+            <button class="btn-add" onclick="doLogin()">ENTRAR</button>
         </div>
     </div>
 
     <div id="app" class="hidden">
+        <header>
+            <h3><i class="fas fa-tree"></i> Gestão Elisa & Fernanda</h3>
+        </header>
         <nav>
-            <button class="nav-btn active" onclick="nav('entrada', this)">Entradas</button>
-            <button class="nav-btn" onclick="nav('saida', this)">Saídas</button>
-            <button class="nav-btn" onclick="nav('fixo', this)">Fixos</button>
-            <button class="nav-btn" onclick="nav('dash', this)">Resumo/Gráficos</button>
+            <button class="nav-btn active" onclick="nav('entradas', this)">Entradas</button>
+            <button class="nav-btn" onclick="nav('saidas', this)">Saídas</button>
+            <button class="nav-btn" onclick="nav('fixos', this)">Gastos Fixos</button>
+            <button class="nav-btn" onclick="nav('viagens', this)">Viagens</button>
+            <button class="nav-btn" onclick="nav('dashboard', this)">Resumo</button>
         </nav>
 
         <div class="container">
-            <section id="sec-entrada" class="card">
-                <h2><i class="fas fa-wallet"></i> Nova Entrada</h2>
-                <label>Quem recebeu?</label>
+            <section id="sec-entradas" class="card">
+                <h2><i class="fas fa-arrow-up"></i> Registrar Entrada</h2>
                 <select id="ent-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
-                <label>Tipo de Entrada</label>
                 <select id="ent-desc">
-                    <option>Salário</option>
-                    <option>Investimento</option>
-                    <option>Paitrocínio</option>
-                    <option>Outros</option>
+                    <option>Salário</option><option>Investimento</option><option>Paitrocínio</option>
                 </select>
-                <label>Valor R$</label>
-                <input type="number" id="ent-val" step="0.01">
-                <label>Data</label>
+                <input type="number" id="ent-val" step="0.01" placeholder="Valor R$">
                 <input type="date" id="ent-date">
                 <button class="btn-add" onclick="saveData('entries', 'ent')">Salvar Entrada</button>
             </section>
 
-            <section id="sec-saida" class="card hidden">
-                <h2><i class="fas fa-shopping-cart"></i> Nova Saída</h2>
-                <label>Quem pagou?</label>
+            <section id="sec-saidas" class="card hidden">
+                <h2><i class="fas fa-arrow-down"></i> Saída Variável</h2>
                 <select id="sai-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
-                <label>Categoria</label>
                 <select id="sai-desc">
                     <option>Alimentação</option><option>Mercado</option><option>Uber</option>
                     <option>Locação de Carro</option><option>Passeios</option><option>Viagem</option>
                     <option>Saúde</option><option>Educação</option><option>Vestuário</option>
                 </select>
-                <label>Valor R$</label>
-                <input type="number" id="sai-val" step="0.01">
-                <label>Data</label>
+                <input type="number" id="sai-val" step="0.01" placeholder="Valor R$">
                 <input type="date" id="sai-date">
                 <button class="btn-add" onclick="saveData('outs', 'sai')">Salvar Saída</button>
             </section>
 
-            <section id="sec-fixo" class="card hidden">
-                <h2><i class="fas fa-calendar-alt"></i> Gastos Fixos</h2>
-                <label>Responsável</label>
+            <section id="sec-fixos" class="card hidden">
+                <h2><i class="fas fa-thumbtack"></i> Gastos Fixos</h2>
                 <select id="fix-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
-                <label>Tipo de Gasto</label>
                 <select id="fix-desc">
                     <option>Cartão de Crédito</option><option>DAS</option><option>Conta de Celular</option>
                     <option>Conta de Água</option><option>Cosméticos</option><option>Streamings</option>
                 </select>
-                <label>Valor Mensal R$</label>
-                <input type="number" id="fix-val" step="0.01">
-                <label>Mês de Referência</label>
-                <input type="month" id="fix-date">
-                <button class="btn-add" onclick="saveData('fixos', 'fix')">Cadastrar Fixo</button>
+                <input type="number" id="fix-val" step="0.01" placeholder="Valor Mensal R$">
+                <input type="month" id="fix-month">
+                <button class="btn-add" onclick="saveData('fixos', 'fix')">Salvar Gasto Fixo</button>
             </section>
 
-            <section id="sec-dash" class="card hidden">
-                <h2><i class="fas fa-chart-bar"></i> Análise Financeira</h2>
-                
-                <label>1. Selecione o Usuário:</label>
+            <section id="sec-viagens" class="card hidden">
+                <h2><i class="fas fa-plane"></i> Planejar Viagem</h2>
+                <input type="text" id="via-desc" placeholder="Destino">
+                <input type="number" id="via-val" placeholder="Meta Total R$">
+                <button class="btn-add" onclick="saveData('viagens', 'via')">Criar Viagem</button>
+                <div id="lista-viagens"></div>
+            </section>
+
+            <section id="sec-dashboard" class="card hidden">
+                <h2><i class="fas fa-chart-bar"></i> Análise de Gastos</h2>
+                <label>Analisar de:</label>
                 <select id="dash-user" onchange="updateDash()">
-                    <option value="Todos">Todos (Geral)</option>
-                    <option value="Elisa">Elisa</option>
-                    <option value="Fernanda">Fernanda</option>
-                    <option value="Conjunto">Conjunto</option>
+                    <option value="Todos">Todos (Geral)</option><option>Elisa</option><option>Fernanda</option><option>Conjunto</option>
                 </select>
-
-                <label>2. Selecione os Meses (Segure Ctrl para vários):</label>
+                <label>Selecione os meses (compare clicando em vários):</label>
                 <select id="dash-months" class="multi-select" multiple onchange="updateDash()">
-                    <option value="0">Janeiro</option><option value="1">Fevereiro</option>
-                    <option value="2">Março</option><option value="3">Abril</option>
-                    <option value="4">Maio</option><option value="5">Junho</option>
-                    <option value="6">Julho</option><option value="7">Agosto</option>
-                    <option value="8">Setembro</option><option value="9">Outubro</option>
-                    <option value="10">Novembro</option><option value="11">Dezembro</option>
+                    <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                    <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                    <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                    <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
                 </select>
-
-                <div class="summary-grid">
-                    <div class="summary-item">Entradas<span id="res-ent" class="val" style="color:green">R$ 0</span></div>
-                    <div class="summary-item">Saídas<span id="res-sai" class="val" style="color:red">R$ 0</span></div>
+                <div style="margin-top:20px; display:flex; gap:20px;">
+                    <p>Entradas: <span id="res-ent" class="summary-val" style="color:green">R$ 0</span></p>
+                    <p>Saídas: <span id="res-sai" class="summary-val" style="color:red">R$ 0</span></p>
                 </div>
-
-                <div style="height: 350px;">
-                    <canvas id="barChart"></canvas>
-                </div>
-                <button class="btn-add" style="background:#999; margin-top:20px" onclick="exportDados()">Exportar Log (Console)</button>
+                <div style="height: 300px; margin-top:20px;"><canvas id="barChart"></canvas></div>
             </section>
         </div>
     </div>
@@ -147,10 +137,10 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        let state = { entries: [], outs: [], fixos: [] };
+        let state = { entries: [], outs: [], fixos: [], viagens: [] };
 
-        function login() {
-            if(document.getElementById('pass').value === "1234") {
+        function doLogin() {
+            if(document.getElementById('login-pass').value === "1234") {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
                 sync();
@@ -162,82 +152,83 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('sec-'+id).classList.remove('hidden');
             btn.classList.add('active');
-            if(id === 'dash') updateDash();
+            if(id === 'dashboard') updateDash();
+            if(id === 'viagens') renderViagens();
         }
 
         function sync() {
-            db.collection("dados").doc("financeiro_v2").onSnapshot(doc => {
+            db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
                 if(doc.exists) state = doc.data();
-                else db.collection("dados").doc("financeiro_v2").set(state);
+                else db.collection("dados").doc("financeiro_vfinal").set(state);
             });
         }
 
         async function saveData(type, prefix) {
             const val = parseFloat(document.getElementById(prefix+'-val').value);
             const desc = document.getElementById(prefix+'-desc').value;
-            const rawDate = document.getElementById(prefix+'-date').value;
-            const owner = document.getElementById(prefix+'-owner').value;
+            const dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value || new Date().toISOString().split('T')[0];
+            const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
 
-            if(!val || !rawDate) return alert("Preencha valor e data!");
+            if(!val || !desc) return alert("Preencha todos os campos");
 
-            const date = rawDate.length === 7 ? rawDate + "-01" : rawDate; // Ajuste para input 'month'
+            const date = dateInput.length === 7 ? dateInput + "-01" : dateInput;
+            state[type].push({ val, desc, date, owner, id: Date.now(), juntado: 0 });
+            await db.collection("dados").doc("financeiro_vfinal").set(state);
+            alert("Salvo com sucesso!");
+            if(type === 'viagens') renderViagens();
+        }
 
-            state[type].push({ val, desc, date, owner, id: Date.now() });
-            await db.collection("dados").doc("financeiro_v2").set(state);
-            alert("Salvo!");
-            document.getElementById(prefix+'-val').value = '';
+        async function addViagemVal(id) {
+            const extra = parseFloat(prompt("Quanto deseja adicionar à reserva desta viagem?"));
+            if(extra) {
+                const v = state.viagens.find(x => x.id === id);
+                v.juntado = (v.juntado || 0) + extra;
+                await db.collection("dados").doc("financeiro_vfinal").set(state);
+                renderViagens();
+            }
+        }
+
+        function renderViagens() {
+            const div = document.getElementById('lista-viagens');
+            div.innerHTML = state.viagens.map(v => {
+                const perc = Math.min(((v.juntado || 0) / v.val) * 100, 100);
+                return `
+                    <div style="border:1px solid #ddd; padding:15px; border-radius:10px; margin-top:10px;">
+                        <strong>${v.desc}</strong> - Meta: R$ ${v.val.toFixed(2)}
+                        <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div>
+                        <p>Juntado: R$ ${(v.juntado || 0).toFixed(2)} (${perc.toFixed(1)}%)</p>
+                        <button onclick="addViagemVal(${v.id})" style="padding:5px; margin-top:5px;">+ Adicionar Dinheiro</button>
+                    </div>`;
+            }).join('');
         }
 
         let barChart;
         function updateDash() {
             const user = document.getElementById('dash-user').value;
             const selectedMonths = Array.from(document.getElementById('dash-months').selectedOptions).map(o => parseInt(o.value));
-            
             if(selectedMonths.length === 0) selectedMonths.push(new Date().getMonth());
 
             const filterFn = (item) => {
-                const itemMonth = new Date(item.date + "T00:00:00").getMonth();
-                const userMatch = (user === "Todos" || item.owner === user);
-                const monthMatch = selectedMonths.includes(itemMonth);
-                return userMatch && monthMatch;
+                const m = new Date(item.date + "T00:00:00").getMonth();
+                return (user === "Todos" || item.owner === user) && selectedMonths.includes(m);
             };
 
-            const tEnt = state.entries.filter(filterFn).reduce((a,b) => a + b.val, 0);
-            const tSaiVar = state.outs.filter(filterFn).reduce((a,b) => a + b.val, 0);
-            const tFix = state.fixos.filter(filterFn).reduce((a,b) => a + b.val, 0);
-            const tTotalSai = tSaiVar + tFix;
+            const ent = state.entries.filter(filterFn).reduce((a,b)=>a+b.val, 0);
+            const sai = state.outs.filter(filterFn).reduce((a,b)=>a+b.val, 0) + state.fixos.filter(filterFn).reduce((a,b)=>a+b.val, 0);
 
-            document.getElementById('res-ent').innerText = `R$ ${tEnt.toFixed(2)}`;
-            document.getElementById('res-sai').innerText = `R$ ${tTotalSai.toFixed(2)}`;
+            document.getElementById('res-ent').innerText = `R$ ${ent.toFixed(2)}`;
+            document.getElementById('res-sai').innerText = `R$ ${sai.toFixed(2)}`;
 
-            renderBar(tEnt, tTotalSai);
-        }
-
-        function renderBar(ent, sai) {
             const ctx = document.getElementById('barChart').getContext('2d');
             if(barChart) barChart.destroy();
             barChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Entradas', 'Saídas Totais'],
-                    datasets: [{
-                        label: 'Valor em R$',
-                        data: [ent, sai],
-                        backgroundColor: ['#27ae60', '#c0392b'],
-                        borderRadius: 10
-                    }]
+                    datasets: [{ label: 'R$', data: [ent, sai], backgroundColor: ['#27ae60', '#c0392b'] }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
-        }
-
-        function exportDados() {
-            console.log("LOG DE DADOS:", state);
-            alert("Dados enviados para o Console (F12)");
         }
     </script>
 </body>
