@@ -3,376 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanças Casal - Private</title>
+    <title>Finanças Elisa & Fernanda</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --verde-arvore: #2d5a27; --verde-claro: #4a7c43; --branco: #ffffff;
-            --bege: #f5f5dc; --bege-escuro: #e8e8d0; --texto: #333;
-            --vermelho: #c0392b; --verde-sucesso: #27ae60; --sombra: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bege); color: var(--texto); min-height: 100vh; }
+        :root { --verde: #2d5a27; --bege: #f5f5dc; --branco: #ffffff; --vermelho: #c0392b; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bege); margin: 0; padding-bottom: 50px; }
         .hidden { display: none !important; }
-        #login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, var(--verde-arvore), #1a3a1a); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: var(--branco); padding: 3rem; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
-        header { background: var(--verde-arvore); color: var(--branco); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
-        nav { background: var(--bege-escuro); padding: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
-        .nav-btn { background: var(--branco); border: 1px solid var(--verde-arvore); padding: 8px 15px; border-radius: 20px; cursor: pointer; color: var(--verde-arvore); font-weight: 600; }
-        .nav-btn.active { background: var(--verde-arvore); color: var(--branco); }
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
-        .card { background: var(--branco); padding: 25px; border-radius: 15px; box-shadow: var(--sombra); margin-bottom: 25px; }
-        h2 { color: var(--verde-arvore); margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
-        .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; display: block; }
-        .user-tabs { display: flex; background: var(--bege-escuro); border-radius: 10px; padding: 5px; margin-bottom: 20px; }
-        .user-tab { flex: 1; border: none; padding: 10px; border-radius: 8px; cursor: pointer; background: transparent; font-weight: bold; }
-        .user-tab.active { background: var(--verde-arvore); color: var(--branco); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; width: 100%; }
-        .btn-add { background: var(--verde-arvore); color: var(--branco); border: none; padding: 12px 25px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
-        .progress-container { background: #eee; height: 25px; border-radius: 20px; margin: 15px 0; overflow: hidden; border: 1px solid #ddd; }
-        .progress-bar { height: 100%; transition: 0.8s ease-in-out; width: 0%; }
-        .milestones { display: flex; justify-content: space-between; margin-top: 5px; }
-        .milestone-item { font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
-        .status-red { color: #cf8c8c; } .status-green { color: var(--verde-sucesso) !important; }
-        .msg-sucesso { color: var(--verde-sucesso); font-weight: bold; font-size: 0.85rem; margin-top: 4px; }
-        .dash-filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .chart-container { background: #fdfdfd; padding: 15px; border-radius: 10px; border: 1px solid #eee; min-height: 300px;}
-        @media (max-width: 768px) { .dash-grid { grid-template-columns: 1fr; } }
+        header { background: var(--verde); color: white; padding: 1.5rem; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        nav { display: flex; overflow-x: auto; background: #e8e8d0; padding: 10px; gap: 8px; sticky: top; z-index: 100; }
+        .nav-btn { background: white; border: 1px solid var(--verde); padding: 8px 15px; border-radius: 20px; white-space: nowrap; cursor: pointer; font-weight: 600; color: var(--verde); }
+        .nav-btn.active { background: var(--verde); color: white; }
+        .container { padding: 15px; max-width: 600px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { color: var(--verde); font-size: 1.2rem; margin-top: 0; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-add { background: var(--verde); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-add:active { transform: scale(0.98); }
+        #login-screen { position: fixed; inset: 0; background: var(--verde); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: white; padding: 2.5rem; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
+        .item-lista { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        .valor-pos { color: #27ae60; font-weight: bold; }
+        .valor-neg { color: var(--vermelho); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <i class="fas fa-heart" style="font-size: 3rem; color: var(--verde-arvore);"></i>
-            <h1 style="margin: 1rem 0;">Acesso Privado</h1>
-            <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Digite a senha do casal</p>
-            <form onsubmit="doLogin(event)">
-                <input type="password" id="login-pass" placeholder="Senha" required>
-                <button type="submit" class="btn-add" style="margin-top: 20px;">ENTRAR</button>
-            </form>
+            <i class="fas fa-leaf" style="font-size: 3rem; color: var(--verde); margin-bottom: 1rem;"></i>
+            <h2>Finanças do Casal</h2>
+            <p style="color: #666; font-size: 0.9rem;">Digite a senha para acessar</p>
+            <input type="password" id="pass" placeholder="Senha">
+            <button class="btn-add" onclick="login()">ENTRAR</button>
         </div>
     </div>
 
     <div id="app" class="hidden">
         <header>
-            <h3><i class="fas fa-tree"></i> Gestão Elisa & Fernanda</h3>
-            <button onclick="logout()" style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">Sair</button>
+            <h3 style="margin:0;"><i class="fas fa-heart"></i> Elisa & Fernanda</h3>
         </header>
+        
         <nav>
-            <button class="nav-btn active" onclick="nav('entradas')">Entradas</button>
-            <button class="nav-btn" onclick="nav('saidas')">Saídas</button>
-            <button class="nav-btn" onclick="nav('fixos')">Gastos Fixos</button>
-            <button class="nav-btn" onclick="nav('aportes')">Aportes</button>
-            <button class="nav-btn" onclick="nav('viagens')">Viagens</button>
-            <button class="nav-btn" onclick="nav('dashboard')">Dashboard</button>
+            <button class="nav-btn active" onclick="nav('entrada', this)">Entradas</button>
+            <button class="nav-btn" onclick="nav('saida', this)">Saídas</button>
+            <button class="nav-btn" onclick="nav('fixo', this)">Fixos</button>
+            <button class="nav-btn" onclick="nav('viagem', this)">Viagens</button>
+            <button class="nav-btn" onclick="nav('dash', this)">Resumo</button>
         </nav>
+
         <div class="container">
-            <section id="sec-entradas" class="card">
-                <h2><i class="fas fa-arrow-up"></i> Entradas</h2>
-                <div class="user-tabs" data-type="entrada">
-                    <button class="user-tab active" onclick="setOwner('Elisa', 'entrada')">Elisa</button>
-                    <button class="user-tab" onclick="setOwner('Fernanda', 'entrada')">Fernanda</button>
-                    <button class="user-tab" onclick="setOwner('Conjunto', 'entrada')">Conjunto</button>
-                </div>
-                <form onsubmit="saveEntry(event)">
-                    <div class="form-grid">
-                        <input type="text" id="ent-desc" placeholder="Ex: Salário" required>
-                        <input type="number" id="ent-val" step="0.01" placeholder="Valor R$" required>
-                        <input type="date" id="ent-date" required>
-                    </div>
-                    <button class="btn-add">Registrar Entrada</button>
-                </form>
+            <section id="sec-entrada" class="card">
+                <h2><i class="fas fa-plus-circle"></i> Nova Entrada</h2>
+                <select id="ent-owner"><option>Elisa</option><option>Fernanda</option></select>
+                <input type="text" id="ent-desc" placeholder="Ex: Salário, Extra...">
+                <input type="number" id="ent-val" placeholder="Valor R$">
+                <input type="date" id="ent-date">
+                <button class="btn-add" onclick="saveData('entries', 'ent')">Registrar Entrada</button>
             </section>
-            <section id="sec-saidas" class="card hidden">
-                <h2><i class="fas fa-arrow-down"></i> Saídas Variáveis</h2>
-                <div class="user-tabs" data-type="saida">
-                    <button class="user-tab active" onclick="setOwner('Elisa', 'saida')">Elisa</button>
-                    <button class="user-tab" onclick="setOwner('Fernanda', 'saida')">Fernanda</button>
-                    <button class="user-tab" onclick="setOwner('Conjunto', 'saida')">Conjunto</button>
-                </div>
-                <form onsubmit="saveOut(event)">
-                    <div class="form-grid">
-                        <select id="sai-cat" required>
-                            <option value="transporte">🚗 Transporte</option>
-                            <option value="cartao">💳 Cartão de Crédito</option>
-                            <option value="parcelas">📅 Parcelas</option>
-                            <option value="alimentacao">🍴 Alimentação</option>
-                            <option value="uber">🚕 Uber</option>
-                            <option value="viagem">✈️ Viagem</option>
-                            <option value="saude">🏥 Saúde</option>
-                            <option value="DAS">📄 DAS</option>
-                            <option value="vestuario">👕 Vestuário</option>
-                            <option value="educacao">🎓 Educação</option>
-                        </select>
-                        <input type="number" id="sai-val" step="0.01" placeholder="Valor R$" required>
-                        <select id="sai-metodo" required>
-                            <option value="Crédito">Crédito</option>
-                            <option value="Débito">Débito</option>
-                            <option value="Pix no Crédito">Pix no Crédito</option>
-                            <option value="Boleto">Boleto</option>
-                            <option value="Transferência">Transferência</option>
-                            <option value="Cheque Especial">Cheque Especial</option>
-                        </select>
-                        <input type="date" id="sai-date" required>
-                    </div>
-                    <button class="btn-add">Registrar Saída</button>
-                </form>
+
+            <section id="sec-saida" class="card hidden">
+                <h2><i class="fas fa-minus-circle"></i> Nova Saída</h2>
+                <select id="sai-owner"><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
+                <input type="text" id="sai-desc" placeholder="Ex: Mercado, Uber...">
+                <input type="number" id="sai-val" placeholder="Valor R$">
+                <input type="date" id="sai-date">
+                <button class="btn-add" onclick="saveData('outs', 'sai')">Registrar Saída</button>
             </section>
-            <section id="sec-fixos" class="card hidden">
-                <h2><i class="fas fa-thumbtack"></i> Gastos Fixos</h2>
-                <div class="user-tabs" data-type="fixo">
-                    <button class="user-tab active" onclick="setOwnerFix('Elisa')">Elisa</button>
-                    <button class="user-tab" onclick="setOwnerFix('Fernanda')">Fernanda</button>
-                </div>
-                <div class="form-grid" id="fixos-container"></div>
-                <button class="btn-add" onclick="saveFixos()">Salvar Gastos Fixos</button>
+
+            <section id="sec-fixo" class="card hidden">
+                <h2><i class="fas fa-thumbtack"></i> Gastos Fixos Atuais</h2>
+                <div id="lista-fixos"></div>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+                <h3>Adicionar Novo Fixo</h3>
+                <input type="text" id="fix-desc" placeholder="Ex: Aluguel, Internet">
+                <input type="number" id="fix-val" placeholder="Valor mensal R$">
+                <button class="btn-add" onclick="saveData('fixos', 'fix')">Salvar Fixo</button>
             </section>
-            <section id="sec-aportes" class="card hidden">
-                <h2><i class="fas fa-piggy-bank"></i> Aportes</h2>
-                <div class="form-grid">
-                    <div><label>Moradia</label><input type="number" id="ap-moradia" value="0"></div>
-                    <div><label>Carro</label><input type="number" id="ap-carro" value="0"></div>
-                    <div><label>Quitação de Dívidas</label><input type="number" id="ap-divida" value="0"></div>
-                </div>
-                <button class="btn-add" onclick="saveAportes()">Salvar Aportes</button>
-            </section>
-            <section id="sec-viagens" class="card hidden">
-                <h2><i class="fas fa-plane"></i> Viagens</h2>
-                <div class="form-grid">
-                    <input type="text" id="v-nome" placeholder="Destino">
-                    <input type="date" id="v-data">
-                    <input type="number" id="v-total" placeholder="Meta Total R$">
-                </div>
-                <button class="btn-add" onclick="createViagem()">Criar Viagem</button>
+
+            <section id="sec-viagem" class="card hidden">
+                <h2><i class="fas fa-plane"></i> Planejamento de Viagem</h2>
                 <div id="lista-viagens"></div>
+                <hr>
+                <input type="text" id="via-desc" placeholder="Destino">
+                <input type="number" id="via-val" placeholder="Meta de valor R$">
+                <button class="btn-add" onclick="saveData('viagens', 'via')">Criar Viagem</button>
             </section>
-            <section id="sec-dashboard" class="card hidden">
-                <h2><i class="fas fa-chart-pie"></i> Resumo</h2>
-                <div class="dash-filters">
-                    <select id="dash-user" onchange="updateDash()">
-                        <option value="Conjunto">Conjunto</option>
-                        <option value="Elisa">Elisa</option>
-                        <option value="Fernanda">Fernanda</option>
-                    </select>
-                    <select id="dash-mes" onchange="updateDash()"></select>
-                    <select id="dash-ano" onchange="updateDash()">
-                        <option value="2025">2025</option>
-                        <option value="2026" selected>2026</option>
-                    </select>
-                </div>
-                <div class="dash-grid">
-                    <div class="chart-container"><canvas id="barChart"></canvas></div>
-                    <div class="chart-container"><canvas id="pieChart"></canvas></div>
-                </div>
+
+            <section id="sec-dash" class="card hidden">
+                <h2><i class="fas fa-chart-line"></i> Resumo Geral</h2>
+                <div style="height: 300px;"><canvas id="chart"></canvas></div>
+                <div id="resumo-texto" style="margin-top:20px;"></div>
+                <button class="btn-add" style="background:#666; margin-top:30px;" onclick="resetTudo()">Limpar todos os dados</button>
             </section>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DE ACESSO
-        const PASS_KEY = "1234"; // COLOQUE SUA SENHA AQUI
-
-        let state = JSON.parse(localStorage.getItem('fin_casal_vfinal')) || {
-            owners: { entrada: 'Elisa', saida: 'Elisa', fixo: 'Elisa' },
-            entries: [], outs: [],
-            fixos: { 
-                Elisa: { cartao: 0, transporte: 0, contas: 0, cosmeticos: 0, celular: 0, streamings: 0 },
-                Fernanda: { cartao: 0, transporte: 0, contas: 0, cosmeticos: 0, celular: 0, streamings: 0 }
-            },
-            aportes: { moradia: 0, carro: 0, divida: 0 },
-            viagens: []
+        // CONFIGURAÇÕES DO SEU FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAjXyxGsIRmkJ83vUQvcovBh-ZpaZE7Qkc",
+            authDomain: "financas-casal-dd5fe.firebaseapp.com",
+            projectId: "financas-casal-dd5fe",
+            storageBucket: "financas-casal-dd5fe.firebasestorage.app",
+            messagingSenderId: "775987268991",
+            appId: "1:775987268991:web:afe10e5e99faea281c9e4a"
         };
 
-        function doLogin(e) {
-            e.preventDefault();
-            const pass = document.getElementById('login-pass').value;
-            if(pass === PASS_KEY) {
-                sessionStorage.setItem('logged', 'true');
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Estado inicial dos dados
+        let state = { entries: [], outs: [], fixos: [], viagens: [] };
+
+        function login() {
+            // A senha que vocês escolheram
+            if(document.getElementById('pass').value === "1234") {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
-                init();
+                sync();
             } else { alert("Senha incorreta!"); }
         }
 
-        function logout() { sessionStorage.removeItem('logged'); location.reload(); }
-
-        window.onload = () => {
-            if(sessionStorage.getItem('logged') === 'true') {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app').classList.remove('hidden');
-                init();
-            }
-        };
-
-        function init() { renderFixos(); renderViagens(); populateMonthFilter(); updateDash(); }
-
-        function nav(section) {
+        function nav(id, btn) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`sec-${section}`).classList.remove('hidden');
-            if(event) event.target.classList.add('active');
-            if(section === 'dashboard') updateDash();
+            document.getElementById('sec-'+id).classList.remove('hidden');
+            btn.classList.add('active');
+            if(id === 'dash') renderChart();
+            if(id === 'fixo') renderLista('fixos', 'lista-fixos');
+            if(id === 'viagem') renderLista('viagens', 'lista-viagens');
         }
 
-        function setOwner(o, type) {
-            state.owners[type] = o;
-            document.querySelectorAll(`.user-tabs[data-type="${type}"] .user-tab`).forEach(b => {
-                b.classList.toggle('active', b.innerText === o);
+        // SINCRONIZAÇÃO EM TEMPO REAL
+        function sync() {
+            db.collection("dados").doc("financeiro").onSnapshot(doc => {
+                if(doc.exists) {
+                    state = doc.data();
+                } else {
+                    // Inicializa o banco se estiver vazio
+                    db.collection("dados").doc("financeiro").set(state);
+                }
             });
         }
 
-        function setOwnerFix(o) {
-            state.owners.fixo = o;
-            document.querySelectorAll(`.user-tabs[data-type="fixo"] .user-tab`).forEach(b => {
-                b.classList.toggle('active', b.innerText === o);
-            });
-            renderFixos();
+        async function saveData(type, prefix) {
+            const val = parseFloat(document.getElementById(prefix+'-val').value);
+            const desc = document.getElementById(prefix+'-desc').value;
+            const date = document.getElementById(prefix+'-date')?.value || new Date().toISOString();
+            const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
+
+            if(!val || !desc) return alert("Por favor, preencha valor e descrição.");
+
+            state[type].push({ val, desc, date, owner, id: Date.now() });
+            
+            try {
+                await db.collection("dados").doc("financeiro").update(state);
+                alert("Registrado com sucesso!");
+                document.getElementById(prefix+'-val').value = '';
+                document.getElementById(prefix+'-desc').value = '';
+                if(type === 'fixos') renderLista('fixos', 'lista-fixos');
+                if(type === 'viagens') renderLista('viagens', 'lista-viagens');
+            } catch(e) {
+                // Se o documento não existir, usa set em vez de update
+                await db.collection("dados").doc("financeiro").set(state);
+            }
         }
 
-        function persist() { localStorage.setItem('fin_casal_vfinal', JSON.stringify(state)); }
-
-        function saveEntry(e) {
-            e.preventDefault();
-            state.entries.push({
-                owner: state.owners.entrada,
-                val: parseFloat(document.getElementById('ent-val').value),
-                date: document.getElementById('ent-date').value,
-                desc: document.getElementById('ent-desc').value
-            });
-            persist(); e.target.reset(); alert("Salvo!");
-        }
-
-        function saveOut(e) {
-            e.preventDefault();
-            state.outs.push({
-                owner: state.owners.saida,
-                val: parseFloat(document.getElementById('sai-val').value),
-                cat: document.getElementById('sai-cat').value,
-                metodo: document.getElementById('sai-metodo').value,
-                date: document.getElementById('sai-date').value
-            });
-            persist(); e.target.reset(); alert("Salvo!");
-        }
-
-        function renderFixos() {
-            const container = document.getElementById('fixos-container');
-            const labels = { cartao: 'Cartão de Crédito', transporte: 'Transporte', contas: 'Contas', cosmeticos: 'Cosméticos', celular: 'Plano Celular', streamings: 'Streamings' };
-            const currentData = state.fixos[state.owners.fixo];
-            container.innerHTML = Object.keys(currentData).map(key => `
-                <div><label>${labels[key]}</label><input type="number" id="f-${key}" value="${currentData[key]}"></div>
-            `).join('');
-        }
-
-        function saveFixos() {
-            const currentOwner = state.owners.fixo;
-            Object.keys(state.fixos[currentOwner]).forEach(k => {
-                state.fixos[currentOwner][k] = parseFloat(document.getElementById(`f-${k}`).value) || 0;
-            });
-            persist(); alert("Fixos Atualizados!");
-        }
-
-        function saveAportes() {
-            state.aportes.moradia = parseFloat(document.getElementById('ap-moradia').value) || 0;
-            state.aportes.carro = parseFloat(document.getElementById('ap-carro').value) || 0;
-            state.aportes.divida = parseFloat(document.getElementById('ap-divida').value) || 0;
-            persist(); alert("Aportes Atualizados!");
-        }
-
-        function createViagem() {
-            const v = {
-                id: Date.now(),
-                nome: document.getElementById('v-nome').value,
-                data: document.getElementById('v-data').value,
-                total: parseFloat(document.getElementById('v-total').value),
-                juntado: 0
-            };
-            state.viagens.push(v); persist(); renderViagens();
-        }
-
-        function addMoneyV(id) {
-            const val = parseFloat(prompt("Quanto deseja somar?"));
-            if(!val) return;
-            const v = state.viagens.find(x => x.id === id);
-            v.juntado += val; persist(); renderViagens();
-        }
-
-        function deleteViagem(id) { if(confirm("Excluir viagem?")) { state.viagens = state.viagens.filter(x => x.id !== id); persist(); renderViagens(); } }
-
-        function renderViagens() {
-            const div = document.getElementById('lista-viagens');
-            div.innerHTML = state.viagens.map(v => {
-                const perc = v.total > 0 ? Math.min((v.juntado / v.total) * 100, 100) : 0;
-                const isG = (p) => perc >= p ? 'status-green' : 'status-red';
-                const icon = (p) => perc >= p ? 'fa-check-circle' : 'fa-circle';
-                return `
-                    <div class="viagem-item" style="border:1px solid #eee; padding:15px; margin-top:10px; border-radius:10px;">
-                        <div style="display:flex; justify-content:space-between;">
-                            <h3>${v.nome}</h3>
-                            <button onclick="deleteViagem(${v.id})" style="color:red; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
-                        </div>
-                        <p>Meta: R$ ${v.total.toFixed(2)} | Falta: R$ ${(v.total - v.juntado).toFixed(2)}</p>
-                        <div class="progress-container"><div class="progress-bar" style="width: ${perc}%; background: ${perc>=100?'var(--verde-sucesso)':'var(--verde-claro)'}"></div></div>
-                        <div class="milestones">
-                            <div class="${isG(25)}"><i class="fas ${icon(25)}"></i> 25%</div>
-                            <div class="${isG(50)}"><i class="fas ${icon(50)}"></i> 50%</div>
-                            <div class="${isG(75)}"><i class="fas ${icon(75)}"></i> 75%</div>
-                            <div class="${isG(100)}"><i class="fas ${icon(100)}"></i> 100%</div>
-                        </div>
-                        <button class="btn-add" onclick="addMoneyV(${v.id})" style="margin-top:10px; padding:5px;">+ Adicionar Valor</button>
+        function renderLista(type, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = state[type].length ? '' : '<p style="color:#999">Nenhum registro ainda.</p>';
+            state[type].forEach(item => {
+                container.innerHTML += `
+                    <div class="item-lista">
+                        <span>${item.desc}</span>
+                        <span class="valor-neg">R$ ${item.val.toFixed(2)}</span>
                     </div>
                 `;
-            }).join('');
+            });
         }
 
-        let barChart, pieChart;
-        function updateDash() {
-            const user = document.getElementById('dash-user').value;
-            const mesIdx = parseInt(document.getElementById('dash-mes').value);
-            const anoIdx = parseInt(document.getElementById('dash-ano').value);
-            const filterFn = (item) => {
-                const d = new Date(item.date);
-                return (user === 'Conjunto' || item.owner === user) && (d.getMonth() === mesIdx) && (d.getFullYear() === anoIdx);
-            };
-            const entTotal = state.entries.filter(filterFn).reduce((a,b)=> a+b.val, 0);
-            const saiVar = state.outs.filter(filterFn).reduce((a,b)=> a+b.val, 0);
-            let saiFix = user === 'Conjunto' ? 
-                (Object.values(state.fixos.Elisa).reduce((a,b)=>a+b,0) + Object.values(state.fixos.Fernanda).reduce((a,b)=>a+b,0)) :
-                Object.values(state.fixos[user]).reduce((a,b)=>a+b,0);
+        let chart;
+        function renderChart() {
+            const tEnt = state.entries.reduce((a,b) => a + b.val, 0);
+            const tSai = state.outs.reduce((a,b) => a + b.val, 0);
+            const tFix = state.fixos.reduce((a,b) => a + b.val, 0);
             
-            renderBar(entTotal, saiVar + saiFix, (state.aportes.moradia + state.aportes.carro + state.aportes.divida));
-            renderPie(state.outs.filter(filterFn));
-        }
+            const totalGastos = tSai + tFix;
+            const saldo = tEnt - totalGastos;
 
-        function renderBar(e, s, a) {
-            const ctx = document.getElementById('barChart');
-            if(barChart) barChart.destroy();
-            barChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['Entradas', 'Saídas', 'Aportes'], datasets: [{ label: 'R$', data: [e, s, a], backgroundColor: ['#27ae60', '#c0392b', '#2980b9'] }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
+            document.getElementById('resumo-texto').innerHTML = `
+                <p><b>Total Entradas:</b> <span class="valor-pos">R$ ${tEnt.toFixed(2)}</span></p>
+                <p><b>Total Saídas (Variáveis + Fixas):</b> <span class="valor-neg">R$ ${totalGastos.toFixed(2)}</span></p>
+                <hr>
+                <p><b>Saldo Atual:</b> <span class="${saldo >= 0 ? 'valor-pos' : 'valor-neg'}">R$ ${saldo.toFixed(2)}</span></p>
+            `;
 
-        function renderPie(data) {
-            const metodos = {};
-            data.forEach(o => metodos[o.metodo] = (metodos[o.metodo] || 0) + o.val);
-            const ctx = document.getElementById('pieChart');
-            if(pieChart) pieChart.destroy();
-            pieChart = new Chart(ctx, {
+            const ctx = document.getElementById('chart').getContext('2d');
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: Object.keys(metodos), datasets: [{ data: Object.values(metodos), backgroundColor: ['#2d5a27', '#4a7c43', '#7dcea0', '#a9dfbf', '#f5f5dc'] }] },
+                data: {
+                    labels: ['Entradas', 'Saídas', 'Fixos'],
+                    datasets: [{
+                        data: [tEnt, tSai, tFix],
+                        backgroundColor: ['#27ae60', '#e74c3c', '#f39c12']
+                    }]
+                },
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
-        function populateMonthFilter() {
-            const sel = document.getElementById('dash-mes');
-            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            sel.innerHTML = meses.map((m, i) => `<option value="${i}" ${i === new Date().getMonth() ? 'selected' : ''}>${m}</option>`).join('');
+        async function resetTudo() {
+            if(confirm("Isso apagará TODOS os dados do banco. Tem certeza?")) {
+                state = { entries: [], outs: [], fixos: [], viagens: [] };
+                await db.collection("dados").doc("financeiro").set(state);
+                location.reload();
+            }
         }
     </script>
 </body>
