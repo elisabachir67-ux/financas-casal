@@ -25,185 +25,78 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bege); color: var(--texto); min-height: 100vh; }
         .hidden { display: none !important; }
 
-/* --- NOVO CSS DO LOGIN --- */
+        /* --- LOGIN CSS --- */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2d5a27);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            overflow: hidden;
+        }
 
-/* Fundo Espacial/Verde Profundo */
-#login-screen {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(to bottom, #0f2027, #203a43, #2d5a27); /* Degradê Espaço -> Verde */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    overflow: hidden; /* Impede barra de rolagem pelos ícones animados */
-}
+        .login-box {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            position: relative;
+            z-index: 2001;
+        }
 
-/* Efeito Glassmorphism (Vidro Fosco) na caixa */
-.login-box {
-    background: rgba(255, 255, 255, 0.85); /* Branco translúcido */
-    backdrop-filter: blur(10px); /* O desfoque do vidro */
-    -webkit-backdrop-filter: blur(10px);
-    padding: 3rem;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    position: relative;
-    z-index: 2001; /* Fica acima dos ícones animados */
-}
+        .login-box.error { animation: shake 0.5s; border: 1px solid var(--vermelho); }
 
-.login-box.error {
-    animation: shake 0.5s;
-    border: 1px solid var(--vermelho);
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-}
-
-/* --- ANIMAÇÃO DOS ÍCONES (FUTEBOL, CERVEJA, ESPAÇO) --- */
-.circles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-    z-index: 1; /* Fica atrás da caixa de login */
-}
-
-.circles li {
-    position: absolute;
-    display: block;
-    list-style: none;
-    width: 20px;
-    height: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    animation: animate 25s linear infinite;
-    bottom: -150px;
-    color: rgba(255, 255, 255, 0.3); /* Cor dos ícones sutil */
-    font-size: 2rem;
-    text-align: center;
-}
-
-/* Configuração aleatória dos ícones flutuantes */
-.circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; font-size: 3rem; }
-.circles li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; font-size: 1.5rem; }
-.circles li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; font-size: 2rem; }
-.circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; font-size: 2.5rem; }
-.circles li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; font-size: 1.2rem; }
-.circles li:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; font-size: 4rem; }
-.circles li:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; font-size: 5rem; }
-.circles li:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; font-size: 1.5rem; }
-.circles li:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; font-size: 1rem; }
-.circles li:nth-child(10){ left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; font-size: 4rem; }
-
-@keyframes animate {
-    0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 1;
-        border-radius: 0;
-    }
-    100% {
-        transform: translateY(-1000px) rotate(720deg);
-        opacity: 0;
-        border-radius: 50%;
-    }
-}
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
         }
 
-header {
-    background: var(--verde-arvore);
-    color: var(--branco);
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-    position: relative; 
-    min-height: 70px;
-}
-
-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    text-align: center;
-    width: 100%; 
-}
-
-.btn-logout {
-    position: absolute; 
-    right: 15px; 
-    top: 50%;
-    transform: translateY(-50%); 
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 6px 12px;
-    border-radius: 8px;
-    color: var(--branco);
-    cursor: pointer;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    width: auto; 
-    margin: 0;
-}
-
-.btn-logout:hover {
-    background: rgba(255, 255, 255, 0.25);
-}
-
-        nav { 
-            background: var(--bege-escuro); padding: 15px; display: flex; 
-            justify-content: center; gap: 8px; overflow-x: auto; 
-            position: sticky; top: 0; z-index: 100; 
+        .circles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 1; }
+        .circles li { position: absolute; list-style: none; display: block; background: rgba(255, 255, 255, 0.2); animation: animate 25s linear infinite; bottom: -150px; color: rgba(255, 255, 255, 0.3); font-size: 2rem; }
+        
+        .circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
+        .circles li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+        .circles li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+        .circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+        .circles li:nth-child(5) { left: 65%; width: 20px; height: 20px; }
+        .circles li:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
+        
+        @keyframes animate {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 0; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; }
         }
 
-        .nav-btn { 
-            background: var(--branco); border: 1px solid var(--verde-arvore); padding: 8px 18px; 
-            border-radius: 25px; cursor: pointer; color: var(--verde-arvore); font-weight: 600;
-            white-space: nowrap; transition: 0.3s;
-        }
+        header { background: var(--verde-arvore); color: var(--branco); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; position: relative; }
+        .btn-logout { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 12px; border-radius: 8px; color: var(--branco); cursor: pointer; font-size: 0.8rem; }
+
+        nav { background: var(--bege-escuro); padding: 15px; display: flex; justify-content: center; gap: 8px; overflow-x: auto; position: sticky; top: 0; z-index: 100; }
+        .nav-btn { background: var(--branco); border: 1px solid var(--verde-arvore); padding: 8px 18px; border-radius: 25px; cursor: pointer; color: var(--verde-arvore); font-weight: 600; white-space: nowrap; transition: 0.3s; }
         .nav-btn.active { background: var(--verde-arvore); color: var(--branco); }
 
         .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
         .card { background: var(--branco); padding: 25px; border-radius: 15px; box-shadow: var(--sombra); margin-bottom: 25px; }
-        
         h2 { color: var(--verde-arvore); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         input, select, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; width: 100%; margin-bottom: 10px; }
-        
         .btn-add { background: var(--verde-arvore); color: var(--branco); border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
-        .input-group { display: flex; gap: 10px; }
         .viagem-card { border: 1px solid #eee; border-radius: 15px; padding: 20px; margin-top: 20px; position: relative; }
-        .progress-wrapper { margin: 20px 0; }
-        .progress-bg { background: #eee; height: 14px; border-radius: 10px; overflow: hidden; }
+        .progress-bg { background: #eee; height: 14px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
         .progress-fill { height: 100%; background: var(--verde-arvore); transition: 0.5s; width: 0%; }
-        .milestones { display: flex; justify-content: space-between; margin-top: 8px; }
-        .milestone { font-size: 0.8rem; color: var(--rosa-milestone); display: flex; align-items: center; gap: 4px; }
+        .milestones { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.75rem; }
         .milestone.active { color: var(--verde-arvore); font-weight: bold; }
         
         .registro-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #eee; }
-        .btn-delete { color: var(--vermelho); cursor: pointer; border: none; background: none; }
+        .btn-delete { color: var(--vermelho); cursor: pointer; border: none; background: none; width: auto; margin: 0; }
         .multi-select { height: 120px !important; }
-
-        @media (min-width: 768px) {
-            nav {
-                justify-content: flex-start; 
-                padding-left: 20px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -214,54 +107,33 @@ header h3 {
         <li><i class="fas fa-futbol"></i></li>
         <li><i class="fas fa-rocket"></i></li>
         <li><i class="fas fa-star"></i></li>
-        <li><i class="fas fa-futbol"></i></li>
         <li><i class="fas fa-beer"></i></li>
         <li><i class="fas fa-user-astronaut"></i></li>
-        <li><i class="fas fa-satellite"></i></li>
-        <li><i class="fas fa-futbol"></i></li>
-        <li><i class="fas fa-meteor"></i></li>
     </ul>
 
     <div class="login-box">
-        <div style="margin-bottom: 20px;">
-            <i class="fas fa-heart" style="font-size: 3.5rem; color: var(--verde-arvore); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));"></i>
-        </div>
-        
-        <h1 style="margin: 1rem 0; font-weight: 700; color: #2d5a27;">Fernanceiro</h1>
-        <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Gestão Financeira & Sonhos</p>
-        
-        <input type="password" id="login-pass" placeholder="Senha de Acesso" onkeypress="if(event.key === 'Enter') doLogin()" 
-               style="background: rgba(255,255,255,0.9); border: 1px solid #ccc;">
-        
-        <button class="btn-add" onclick="doLogin()" 
-                style="width: 100%; padding: 15px; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(45, 90, 39, 0.4); transition: transform 0.2s;">
-            ENTRAR
-        </button>
+        <i class="fas fa-heart" style="font-size: 3.5rem; color: var(--verde-arvore); margin-bottom: 1rem;"></i>
+        <h1 style="color: #2d5a27;">Fernanceiro</h1>
+        <p style="margin-bottom: 1.5rem; color: #666;">Gestão Financeira & Sonhos</p>
+        <input type="password" id="login-pass" placeholder="Senha de Acesso" onkeypress="if(event.key === 'Enter') doLogin()">
+        <button class="btn-add" onclick="doLogin()">ENTRAR</button>
     </div>
 </div>
+
 <div id="app" class="hidden">
     <header>
-        <div style="width: 80px;"></div> <h3><i class="fas fa-tree"></i> Gestão Elisa & Fernanda</h3>
+        <div style="width: 50px;"></div>
+        <h3><i class="fas fa-tree"></i> Gestão Elisa & Fernanda</h3>
         <button class="btn-logout" onclick="location.reload()">Sair</button>
     </header>
     
-<nav>
-    <button class="nav-btn active" onclick="nav('entradas', this)">
-        <i class="fas fa-arrow-down"></i> Entradas
-    </button>
-    <button class="nav-btn" onclick="nav('saidas', this)">
-        <i class="fas fa-arrow-up"></i> Saídas
-    </button>
-    <button class="nav-btn" onclick="nav('fixos', this)">
-        <i class="fas fa-thumbtack"></i> Fixos
-    </button>
-    <button class="nav-btn" onclick="nav('viagens', this)">
-        <i class="fas fa-plane"></i> Viagens
-    </button>
-    <button class="nav-btn" onclick="nav('dashboard', this)">
-        <i class="fas fa-chart-pie"></i> Resumo
-    </button>
-</nav>
+    <nav>
+        <button class="nav-btn active" onclick="nav('entradas', this)"><i class="fas fa-arrow-down"></i> Entradas</button>
+        <button class="nav-btn" onclick="nav('saidas', this)"><i class="fas fa-arrow-up"></i> Saídas</button>
+        <button class="nav-btn" onclick="nav('fixos', this)"><i class="fas fa-thumbtack"></i> Fixos</button>
+        <button class="nav-btn" onclick="nav('viagens', this)"><i class="fas fa-plane"></i> Viagens</button>
+        <button class="nav-btn" onclick="nav('dashboard', this)"><i class="fas fa-chart-pie"></i> Resumo</button>
+    </nav>
 
     <div class="container">
         <section id="sec-entradas" class="card">
@@ -300,21 +172,16 @@ header h3 {
 
         <section id="sec-viagens" class="card hidden">
             <h2><i class="fas fa-plane"></i> Viagens</h2>
-            <div class="input-group">
-                <input type="text" id="via-destino" placeholder="Vitória">
-                <input type="date" id="via-data">
-            </div>
+            <input type="text" id="via-destino" placeholder="Destino (ex: Vitória)">
+            <input type="date" id="via-data">
             <div style="background: #fdfdfd; padding: 15px; border: 1px dashed #ccc; border-radius: 10px; margin-bottom: 15px;">
-                <p style="margin-bottom: 10px; font-weight: bold; font-size: 0.9rem;">Adicionar Opções de Custo:</p>
-                <div class="input-group">
-                    <select id="via-cat-nome">
-                        <option>Hospedagem</option><option>Passagem</option><option>Alimentação</option>
-                        <option>Locação de Carro</option><option>Passeios</option>
-                    </select>
-                    <input type="number" id="via-cat-valor" placeholder="Valor R$">
-                    <button onclick="addCatItem()" style="width: 50px; background: var(--verde-arvore); color: white; border-radius: 8px; border: none; cursor: pointer;">+</button>
+                <p style="margin-bottom: 10px; font-weight: bold; font-size: 0.9rem;">Itens de Custo:</p>
+                <div style="display: flex; gap: 5px;">
+                    <select id="via-cat-nome"><option>Hospedagem</option><option>Passagem</option><option>Alimentação</option><option>Passeios</option></select>
+                    <input type="number" id="via-cat-valor" placeholder="R$">
+                    <button onclick="addCatItem()" style="width: 50px; background: var(--verde-arvore); color: white; border: none; border-radius: 8px;">+</button>
                 </div>
-                <div id="temp-cats" style="font-size: 0.85rem; color: #666; margin-top: 5px;"></div>
+                <div id="temp-cats" style="font-size: 0.85rem; margin-top: 5px;"></div>
             </div>
             <button class="btn-add" onclick="saveViagem()">Criar Viagem</button>
             <div id="lista-viagens"></div>
@@ -322,21 +189,18 @@ header h3 {
 
         <section id="sec-dashboard" class="card hidden">
             <h2><i class="fas fa-chart-bar"></i> Resumo</h2>
-            <select id="dash-user" onchange="updateDash()">
-                <option value="Todos">Todos (Geral)</option><option>Elisa</option><option>Fernanda</option><option>Conjunto</option>
-            </select>
+            <select id="dash-user" onchange="updateDash()"><option value="Todos">Todos</option><option>Elisa</option><option>Fernanda</option><option>Conjunto</option></select>
             <select id="dash-months" class="multi-select" multiple onchange="updateDash()">
-                <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
-                <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
-                <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
-                <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+                <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option>
+                <option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option>
+                <option value="8">Setembro</option><option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
             </select>
-            <div style="margin-top:20px; display:flex; flex-wrap: wrap; gap:20px;">
+            <div style="margin-top:20px; display:flex; flex-wrap: wrap; gap:20px; justify-content: center;">
                 <p>Entradas: <span id="res-ent" style="color:green; font-weight:bold;">R$ 0</span></p>
                 <p>Saídas: <span id="res-sai" style="color:red; font-weight:bold;">R$ 0</span></p>
                 <p>Saldo: <span id="res-saldo" style="font-weight:bold;">R$ 0</span></p>
             </div>
-            <div style="height: 300px; margin-top:20px;"><canvas id="barChart"></canvas></div>
+            <div style="height: 250px; margin-top:20px;"><canvas id="barChart"></canvas></div>
             <h2 style="margin-top:40px;"><i class="fas fa-list"></i> Histórico</h2>
             <div id="historico-registros"></div>
         </section>
@@ -344,6 +208,7 @@ header h3 {
 </div>
 
 <script>
+    // Configuração Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyAjXyxGsIRmkJ83vUQvcovBh-ZpaZE7Qkc",
         authDomain: "financas-casal-dd5fe.firebaseapp.com",
@@ -356,37 +221,24 @@ header h3 {
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let state = { entries: [], outs: [], fixos: [], viagens: [] };
-    state.entries = state.entries || [];
-    state.outs = state.outs || [];
-    state.fixos = state.fixos || [];
-    state.viagens = state.viagens || [];
     let itensTemp = [];
+    let isInitialLoad = true;
 
-function doLogin() {
-    const passInput = document.getElementById('login-pass');
-    const senhaDigitada = passInput.value;
-    
-    if (senhaDigitada === "1234") {
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        sync(); 
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Senha Incorreta',
-            text: 'Tente novamente, Elisa ou Fernanda!',
-            confirmButtonColor: '#2d5a27',
-            timer: 2000
-        });
-
-        const loginBox = document.querySelector('.login-box');
-        loginBox.classList.add('error');
-        setTimeout(() => loginBox.classList.remove('error'), 500); 
-
-        passInput.value = ""; 
-        passInput.focus();
+    // Login
+    function doLogin() {
+        const passInput = document.getElementById('login-pass');
+        if (passInput.value === "1234") {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            initSync();
+        } else {
+            Swal.fire({ icon: 'error', title: 'Senha Incorreta', timer: 1500, showConfirmButton: false });
+            document.querySelector('.login-box').classList.add('error');
+            setTimeout(() => document.querySelector('.login-box').classList.remove('error'), 500);
+        }
     }
-}
+
+    // Navegação
     function nav(id, btn) {
         document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -396,21 +248,110 @@ function doLogin() {
         if(id === 'viagens') renderViagens();
     }
 
-    function sync() {
+    // Sincronização
+    function initSync() {
         db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
             if(doc.exists) {
-                state = doc.data() || state;
-
-state.entries = state.entries || [];
-state.outs = state.outs || [];
-state.fixos = state.fixos || [];
-state.viagens = state.viagens || [];
-                if(!document.getElementById('sec-dashboard').classList.contains('hidden')) updateDash();
-                if(!document.getElementById('sec-viagens').classList.contains('hidden')) renderViagens();
-            } else { db.collection("dados").doc("financeiro_vfinal").set(state); }
+                state = doc.data();
+                // Garantir arrays inicializados
+                state.entries = state.entries || [];
+                state.outs = state.outs || [];
+                state.fixos = state.fixos || [];
+                state.viagens = state.viagens || [];
+                
+                if (isInitialLoad) {
+                    updateDash();
+                    renderViagens();
+                    isInitialLoad = false;
+                }
+            } else {
+                db.collection("dados").doc("financeiro_vfinal").set(state);
+            }
         });
     }
 
+    // Funções de Registro
+    async function saveData(type, prefix) {
+        const val = parseFloat(document.getElementById(prefix+'-val').value);
+        const desc = document.getElementById(prefix+'-desc').value;
+        const owner = document.getElementById(prefix+'-owner').value;
+        let dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value;
+
+        if(!val || !desc) return Swal.fire('Aviso','Preencha os campos obrigatorios!','warning');
+        
+        if(!dateInput) dateInput = new Date().toISOString().split('T')[0];
+        if(dateInput.length === 7) dateInput += "-01";
+
+        const novoRegistro = { val, desc, date: dateInput, owner, id: Date.now() };
+        
+        state[type].push(novoRegistro);
+
+        try {
+            await db.collection("dados").doc("financeiro_vfinal").update(state);
+            Swal.fire({ icon:'success', title:'Salvo com sucesso!', timer:1200, showConfirmButton:false });
+            document.getElementById(prefix+'-val').value = '';
+            updateDash();
+        } catch(e) {
+            Swal.fire('Erro','Falha ao salvar no banco','error');
+        }
+    }
+
+    async function deleteItem(type, id) {
+        const res = await Swal.fire({ title: 'Excluir registro?', text: "Essa ação não pode ser desfeita.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#c0392b' });
+        if (res.isConfirmed) {
+            state[type] = state[type].filter(item => item.id !== id);
+            await db.collection("dados").doc("financeiro_vfinal").set(state);
+            updateDash();
+            renderViagens();
+        }
+    }
+
+    // Dashboard
+    let barChart;
+    function updateDash() {
+        const user = document.getElementById('dash-user').value;
+        const selMonths = Array.from(document.getElementById('dash-months').selectedOptions).map(o => parseInt(o.value));
+        
+        const filterFn = (i) => (user === "Todos" || i.owner === user) && (selMonths.length === 0 || selMonths.includes(new Date(i.date + "T00:00:00").getMonth()));
+        
+        const ent = (state.entries || []).filter(filterFn).reduce((a,b)=>a+b.val, 0);
+        const sai = (state.outs || []).filter(filterFn).reduce((a,b)=>a+b.val, 0) + (state.fixos || []).filter(filterFn).reduce((a,b)=>a+b.val, 0);
+        const saldo = ent - sai;
+        
+        document.getElementById('res-ent').innerText = `R$ ${ent.toFixed(2)}`;
+        document.getElementById('res-sai').innerText = `R$ ${sai.toFixed(2)}`;
+        document.getElementById('res-saldo').innerText = `R$ ${saldo.toFixed(2)}`;
+        document.getElementById('res-saldo').style.color = saldo >= 0 ? "blue" : "red";
+        
+        const ctx = document.getElementById('barChart').getContext('2d');
+        if(barChart) barChart.destroy();
+        barChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Entradas', 'Saídas', 'Saldo'],
+                datasets: [{
+                    label: 'R$',
+                    data: [ent, sai, saldo],
+                    backgroundColor: ['#27ae60', '#c0392b', saldo >= 0 ? '#2980b9' : '#e74c3c']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const all = [
+            ...(state.entries||[]).map(i=>({...i,type:'entries',l:'(E)'})),
+            ...(state.outs||[]).map(i=>({...i,type:'outs',l:'(S)'})),
+            ...(state.fixos||[]).map(i=>({...i,type:'fixos',l:'(F)'}))
+        ].filter(filterFn).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+        document.getElementById('historico-registros').innerHTML = all.map(i => `
+            <div class="registro-item">
+                <span>${i.date.split('-').reverse().join('/')} - <b>${i.l}</b> ${i.desc} (${i.owner}) - R$ ${i.val.toFixed(2)}</span>
+                <button class="btn-delete" onclick="deleteItem('${i.type}', ${i.id})"><i class="fas fa-trash"></i></button>
+            </div>`).join('');
+    }
+
+    // Viagens
     function addCatItem() {
         const nome = document.getElementById('via-cat-nome').value;
         const valor = parseFloat(document.getElementById('via-cat-valor').value);
@@ -425,17 +366,14 @@ state.viagens = state.viagens || [];
         const data = document.getElementById('via-data').value;
         if(!destino || itensTemp.length === 0) return Swal.fire('Aviso', 'Preencha o destino e adicione itens!', 'warning');
         
-        const totalMeta = itensTemp.reduce((a, b) => a + b.valor, 0);
-        state.viagens = state.viagens || [];
-        
         state.viagens.push({
             id: Date.now(),
-            destino: destino,
-            data: data,
-            meta: totalMeta,
+            destino,
+            data,
+            meta: itensTemp.reduce((a, b) => a + b.valor, 0),
             juntado: 0,
             itens: [...itensTemp],
-            milestones: [] 
+            milestones: []
         });
         
         itensTemp = [];
@@ -448,163 +386,36 @@ state.viagens = state.viagens || [];
 
     function renderViagens() {
         const div = document.getElementById('lista-viagens');
-        if(!state.viagens) return div.innerHTML = "";
-
-        div.innerHTML = state.viagens.map(v => {
-            const perc = (v.juntado / v.meta) * 100;
-            const falta = v.meta - v.juntado;
+        div.innerHTML = (state.viagens || []).map(v => {
+            const perc = v.meta > 0 ? (v.juntado / v.meta) * 100 : 0;
             return `
                 <div class="viagem-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h3 style="margin:0;">${v.destino}</h3>
+                    <div style="display:flex; justify-content:space-between;">
+                        <h3>${v.destino}</h3>
                         <i class="fas fa-trash" style="color:red; cursor:pointer" onclick="deleteItem('viagens', ${v.id})"></i>
                     </div>
-                    <p style="font-size:0.9rem; color:#666; margin:5px 0;">Meta: R$ ${v.meta.toFixed(2)} | Falta: R$ ${falta.toFixed(2)}</p>
-                    
-                    <div class="progress-wrapper">
-                        <div class="progress-bg">
-                            <div class="progress-fill" style="width:${Math.min(perc, 100)}%"></div>
-                        </div>
-                        <div class="milestones">
-                            <div class="milestone ${perc >= 25 ? 'active' : ''}"><i class="fas fa-circle"></i> 25%</div>
-                            <div class="milestone ${perc >= 50 ? 'active' : ''}"><i class="fas fa-circle"></i> 50%</div>
-                            <div class="milestone ${perc >= 75 ? 'active' : ''}"><i class="fas fa-circle"></i> 75%</div>
-                            <div class="milestone ${perc >= 100 ? 'active' : ''}"><i class="fas fa-circle"></i> 100%</div>
-                        </div>
+                    <p style="font-size:0.85rem;">Meta: R$ ${v.meta.toFixed(2)} | Juntado: R$ ${v.juntado.toFixed(2)}</p>
+                    <div class="progress-bg"><div class="progress-fill" style="width:${Math.min(perc, 100)}%"></div></div>
+                    <div class="milestones">
+                        <span class="${perc>=25?'active':''}">25%</span>
+                        <span class="${perc>=50?'active':''}">50%</span>
+                        <span class="${perc>=75?'active':''}">75%</span>
+                        <span class="${perc>=100?'active':''}">100%</span>
                     </div>
-                    <button class="btn-add" onclick="addViagemVal(${v.id})">+ Adicionar Valor</button>
+                    <button class="btn-add" style="margin-top:10px" onclick="addViagemVal(${v.id})">Adicionar Valor</button>
                 </div>`;
         }).join('');
     }
 
     async function addViagemVal(id) {
-        const { value: extra } = await Swal.fire({ title: 'Adicionar à reserva', input: 'number', showCancelButton: true });
-        if(!extra || isNaN(extra)) return;
-
+        const { value: extra } = await Swal.fire({ title: 'Quanto quer guardar?', input: 'number', showCancelButton: true });
+        if(!extra) return;
         const v = state.viagens.find(x => x.id === id);
         v.juntado += parseFloat(extra);
-        const novoPerc = (v.juntado / v.meta) * 100;
-
-        v.itens.forEach(item => {
-            if (v.juntado >= item.valor && !item.pago) {
-                item.pago = true;
-                Swal.fire('Item Pago!', `${item.nome} foi quitado!`, 'success');
-            }
-        });
-
-        const metas = [25, 50, 75, 100];
-        const textos = {
-            25: "parábens, você pagou um quarto da viagem. faltam só mais 3 hein",
-            50: "uhul, ja foi metade. 2 patinhos na lagoa",
-            75: "a booaa, próxima piscada já é trip",
-            100: "conta quitada! bora programar a próxima!"
-        };
-
-        if(!v.milestones) v.milestones = [];
-        metas.forEach(m => {
-            if (novoPerc >= m && !v.milestones.includes(m)) {
-                v.milestones.push(m);
-                Swal.fire({ title: m + '% Concluído!', text: textos[m], icon: 'info' });
-            }
-        });
-
         await db.collection("dados").doc("financeiro_vfinal").set(state);
         renderViagens();
-    }
-
-async function saveData(type, prefix) {
-
-    const val = parseFloat(document.getElementById(prefix+'-val').value);
-    const desc = document.getElementById(prefix+'-desc').value;
-
-    let dateInput = document.getElementById(prefix+'-date')?.value 
-        || document.getElementById(prefix+'-month')?.value;
-
-    if(!dateInput){
-        dateInput = new Date().toISOString().split('T')[0];
-    }
-
-    const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
-
-    if(!val || !desc){
-        Swal.fire('Aviso','Preencha tudo!','warning');
-        return;
-    }
-
-    if(!state[type]) state[type] = [];
-
-    if(!state[type]) state[type] = [];
-    state[type].push({
-        val,
-        desc,
-        date: dateInput.length === 7 ? dateInput + "-01" : dateInput,
-        owner,
-        id: Date.now()
-    });
-
-    try {
-
-        await db.collection("dados").doc("financeiro_vfinal").set(state);
-
-        Swal.fire({
-            icon:'success',
-            title:'Salvo!',
-            timer:1200,
-            showConfirmButton:false
-        });
-
-        document.getElementById(prefix+'-val').value='';
-
-    } catch(e){
-
-        Swal.fire('Erro','Não foi possível salvar','error');
-
-    }
-}
-
-    async function deleteItem(type, id) {
-        const res = await Swal.fire({ title: 'Excluir?', icon: 'warning', showCancelButton: true });
-        if (res.isConfirmed) {
-            state[type] = state[type].filter(item => item.id !== id);
-            await db.collection("dados").doc("financeiro_vfinal").set(state);
-            type === 'viagens' ? renderViagens() : updateDash();
-        }
-    }
-
-    let barChart;
-    function updateDash() {
-        const user = document.getElementById('dash-user').value;
-        const selMonths = Array.from(document.getElementById('dash-months').selectedOptions).map(o => parseInt(o.value));
-        const filterFn = (i) => (user === "Todos" || i.owner === user) && (selMonths.length === 0 || selMonths.includes(new Date(i.date + "T00:00:00").getMonth()));
-        
-        const ent = (state.entries || []).filter(filterFn).reduce((a,b)=>a+b.val, 0);
-        const sai = (state.outs || []).filter(filterFn).reduce((a,b)=>a+b.val, 0) + (state.fixos || []).filter(filterFn).reduce((a,b)=>a+b.val, 0);
-        const saldo = ent - sai;
-        
-        document.getElementById('res-ent').innerText = `R$ ${ent.toFixed(2)}`;
-        document.getElementById('res-sai').innerText = `R$ ${sai.toFixed(2)}`;
-        document.getElementById('res-saldo').innerText = `R$ ${saldo.toFixed(2)}`;
-        document.getElementById('res-saldo').style.color = saldo >= 0 ? "blue" : "red";
-        
-        const ctx = document.getElementById('barChart').getContext('2d');
-        if(barChart) barChart.destroy();
-        barChart = new Chart(ctx, { 
-            type: 'bar', 
-            data: { 
-                labels: ['Entradas', 'Saídas', 'Saldo'], 
-                datasets: [{ 
-                    label: 'R$', 
-                    data: [ent, sai, saldo], 
-                    backgroundColor: ['#27ae60', '#c0392b', saldo >= 0 ? '#2980b9' : '#e74c3c'] 
-                }] 
-            }, 
-            options: { responsive: true, maintainAspectRatio: false } 
-        });
-        
-        const all = [...(state.entries||[]).filter(filterFn).map(i=>({...i,type:'entries',l:'(E)'})), ...(state.outs||[]).filter(filterFn).map(i=>({...i,type:'outs',l:'(S)'})), ...(state.fixos||[]).filter(filterFn).map(i=>({...i,type:'fixos',l:'(F)'}))].sort((a,b)=>new Date(b.date)-new Date(a.date));
-        document.getElementById('historico-registros').innerHTML = all.map(i => `<div class="registro-item"><span>${i.date.split('-').reverse().join('/')} - <b>${i.l}</b> ${i.desc} (R$ ${i.val.toFixed(2)})</span><button class="btn-delete" onclick="deleteItem('${i.type}', ${i.id})"><i class="fas fa-trash"></i></button></div>`).join('');
+        Swal.fire('Boa!', 'Valor adicionado com sucesso', 'success');
     }
 </script>
 </body>
 </html>
-
