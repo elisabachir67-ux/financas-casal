@@ -272,30 +272,46 @@
 
     // Funções de Registro
     async function saveData(type, prefix) {
-        const val = parseFloat(document.getElementById(prefix+'-val').value);
-        const desc = document.getElementById(prefix+'-desc').value;
-        const owner = document.getElementById(prefix+'-owner').value;
-        let dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value;
+   async function saveData(type, prefix) {
+    const valInput = document.getElementById(prefix + '-val');
+    const descInput = document.getElementById(prefix + '-desc');
+    const val = parseFloat(valInput.value);
+    const desc = descInput.value;
+    const owner = document.getElementById(prefix + '-owner').value;
+    let dateInput = document.getElementById(prefix + '-date')?.value || document.getElementById(prefix + '-month')?.value;
 
-        if(!val || !desc) return Swal.fire('Aviso','Preencha os campos obrigatorios!','warning');
-        
-        if(!dateInput) dateInput = new Date().toISOString().split('T')[0];
-        if(dateInput.length === 7) dateInput += "-01";
-
-        const novoRegistro = { val, desc, date: dateInput, owner, id: Date.now() };
-        
-        state[type].push(novoRegistro);
-
-        try {
-            await db.collection("dados").doc("financeiro_vfinal").update(state);
-            Swal.fire({ icon:'success', title:'Salvo com sucesso!', timer:1200, showConfirmButton:false });
-            document.getElementById(prefix+'-val').value = '';
-            updateDash();
-        } catch(e) {
-            Swal.fire('Erro','Falha ao salvar no banco','error');
-        }
+    if (!val || !desc) {
+        return Swal.fire('Aviso', 'Preencha o valor e a descrição!', 'warning');
     }
 
+    if (!dateInput) dateInput = new Date().toISOString().split('T')[0];
+    if (dateInput.length === 7) dateInput += "-01";
+
+    // Adiciona ao estado local primeiro
+    const novoRegistro = { val, desc, date: dateInput, owner, id: Date.now() };
+    state[type].push(novoRegistro);
+
+    try {
+        // Usa SET com MERGE para garantir que crie o documento se ele não existir
+        await db.collection("dados").doc("financeiro_vfinal").set(state, { merge: true });
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Salvo com sucesso!',
+            timer: 1500,
+            showConfirmButton: false
+        });
+
+        // Limpa apenas o campo de valor e descrição
+        valInput.value = '';
+        if (prefix === 'ent' || prefix === 'sai') descInput.selectedIndex = 0;
+        
+        updateDash();
+    } catch (e) {
+        console.error("Erro detalhado:", e);
+        Swal.fire('Erro', 'Falha ao salvar: ' + e.message, 'error');
+    }
+}
     async function deleteItem(type, id) {
         const res = await Swal.fire({ title: 'Excluir registro?', text: "Essa ação não pode ser desfeita.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#c0392b' });
         if (res.isConfirmed) {
