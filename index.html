@@ -7,9 +7,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    <style>
         :root {
             --verde-arvore: #2d5a27; 
             --verde-claro: #4a7c43; 
@@ -170,22 +169,44 @@
             <button class="btn-add" onclick="saveData('fixos', 'fix')">Salvar Gasto Fixo</button>
         </section>
 
-        <section id="sec-viagens" class="card hidden">
-            <h2><i class="fas fa-plane"></i> Viagens</h2>
-            <input type="text" id="via-destino" placeholder="Destino (ex: Vitória)">
-            <input type="date" id="via-data">
-            <div style="background: #fdfdfd; padding: 15px; border: 1px dashed #ccc; border-radius: 10px; margin-bottom: 15px;">
-                <p style="margin-bottom: 10px; font-weight: bold; font-size: 0.9rem;">Itens de Custo:</p>
-                <div style="display: flex; gap: 5px;">
-                    <select id="via-cat-nome"><option>Hospedagem</option><option>Passagem</option><option>Alimentação</option><option>Passeios</option></select>
-                    <input type="number" id="via-cat-valor" placeholder="R$">
-                    <button onclick="addCatItem()" style="width: 50px; background: var(--verde-arvore); color: white; border: none; border-radius: 8px;">+</button>
-                </div>
-                <div id="temp-cats" style="font-size: 0.85rem; margin-top: 5px;"></div>
+<section id="sec-viagens" class="card hidden">
+    <h2><i class="fas fa-plane"></i> Viagens</h2>
+    
+    <div style="background: var(--bege-escuro); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+        <div class="form-grid">
+            <div>
+                <label style="font-size: 0.8rem; font-weight: bold;">Destino</label>
+                <input type="text" id="v-nome" placeholder="Ex: Gramado">
             </div>
-            <button class="btn-add" onclick="saveViagem()">Criar Viagem</button>
-            <div id="lista-viagens"></div>
-        </section>
+            <div>
+                <label style="font-size: 0.8rem; font-weight: bold;">Data da Viagem</label>
+                <input type="date" id="v-data">
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #abb1a8;">
+            <p style="font-size: 0.9rem; margin-bottom: 10px; font-weight: bold;">Adicionar Custos Individuais:</p>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                <div style="flex: 2; min-width: 150px;">
+                    <input type="text" id="v-item-nome" placeholder="Ex: Passagens">
+                </div>
+                <div style="flex: 1; min-width: 100px;">
+                    <input type="number" id="v-item-val" placeholder="R$" step="0.01">
+                </div>
+                <button onclick="addTempItem()" style="background: var(--verde-arvore); color: white; border: none; border-radius: 8px; padding: 12px 20px; cursor: pointer; height: 45px;">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            
+            <div id="v-items-list" style="margin-top: 15px; background: rgba(255,255,255,0.5); border-radius: 8px; padding: 10px; display: none;"></div>
+        </div>
+        
+        <button class="btn-add" onclick="createViagem()" style="margin-top: 20px;">CRIAR VIAGEM COMPLETA</button>
+    </div>
+
+    <div id="lista-viagens"></div>
+</section>
 
         <section id="sec-dashboard" class="card hidden">
             <h2><i class="fas fa-chart-bar"></i> Resumo</h2>
@@ -248,150 +269,55 @@
         if(id === 'viagens') renderViagens();
     }
 
-    // Sincronização Corrigida
-function initSync() {
-    db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
-        if(doc.exists) {
-            const data = doc.data();
-            // Garante que se o campo não existir no banco, ele vire um array vazio e não quebre o código
-            state.entries = data.entries || [];
-            state.outs = data.outs || [];
-            state.fixos = data.fixos || [];
-            state.viagens = data.viagens || [];
-            
-            // Atualiza as telas sempre que houver mudança no banco
-            if (document.getElementById('sec-viagens').classList.contains('hidden') === false) {
-                renderViagens();
-            }
-            if (document.getElementById('sec-dashboard').classList.contains('hidden') === false) {
-                updateDash();
-            }
-        } else {
-            db.collection("dados").doc("financeiro_vfinal").set(state);
-        }
-    });
-}
-
-// Renderizar Viagens Corrigido
-function renderViagens() {
-    const div = document.getElementById('lista-viagens');
-    if (!div) return;
-
-    if (state.viagens.length === 0) {
-        div.innerHTML = '<p style="text-align:center; margin-top:20px; color:#666;">Nenhuma viagem planejada.</p>';
-        return;
-    }
-
-    div.innerHTML = state.viagens.map(v => {
-        const meta = parseFloat(v.meta) || 0;
-        const juntado = parseFloat(v.juntado) || 0;
-        const perc = meta > 0 ? (juntado / meta) * 100 : 0;
-        
-        return `
-            <div class="viagem-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="color:var(--verde-arvore)">✈️ ${v.destino}</h3>
-                    <button class="btn-delete" onclick="deleteItem('viagens', ${v.id})"><i class="fas fa-trash"></i></button>
-                </div>
-                <p style="font-size:0.85rem; margin: 10px 0;">
-                    <b>Meta:</b> R$ ${meta.toFixed(2)} | <b>Juntado:</b> R$ ${juntado.toFixed(2)}
-                </p>
-                <div class="progress-bg">
-                    <div class="progress-fill" style="width:${Math.min(perc, 100)}%"></div>
-                </div>
-                <div class="milestones">
-                    <span class="milestone ${perc>=25?'active':''}">25%</span>
-                    <span class="milestone ${perc>=50?'active':''}">50%</span>
-                    <span class="milestone ${perc>=75?'active':''}">75%</span>
-                    <span class="milestone ${perc>=100?'active':''}">100%</span>
-                </div>
-                <button class="btn-add" style="margin-top:15px; background:#4a7c43" onclick="addViagemVal(${v.id})">
-                    <i class="fas fa-piggy-bank"></i> Adicionar Valor
-                </button>
-            </div>`;
-    }).join('');
-}
-
-// Adicionar Valor Corrigido com Mensagem de Parabéns
-async function addViagemVal(id) {
-    const { value: extra } = await Swal.fire({ 
-        title: 'Quanto quer guardar?', 
-        input: 'number', 
-        inputAttributes: { step: '0.01' },
-        showCancelButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar'
-    });
-
-    if(extra) {
-        const valorAdicional = parseFloat(extra);
-        const index = state.viagens.findIndex(x => x.id === id);
-        
-        if (index !== -1) {
-            const v = state.viagens[index];
-            const antigoJuntado = v.juntado;
-            v.juntado += valorAdicional;
-
-            await db.collection("dados").doc("financeiro_vfinal").update({
-                viagens: state.viagens
-            });
-
-            // Mensagem de Parabéns se completar a meta
-            if (v.juntado >= v.meta && antigoJuntado < v.meta) {
-                Swal.fire({
-                    title: '🎉 PARABÉNS!',
-                    text: `Você atingiu a meta para ${v.destino}! Partiu viajar?`,
-                    icon: 'success',
-                    confirmButtonColor: '#2d5a27'
-                });
+    // Sincronização
+    function initSync() {
+        db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
+            if(doc.exists) {
+                state = doc.data();
+                // Garantir arrays inicializados
+                state.entries = state.entries || [];
+                state.outs = state.outs || [];
+                state.fixos = state.fixos || [];
+                state.viagens = state.viagens || [];
+                
+                if (isInitialLoad) {
+                    updateDash();
+                    renderViagens();
+                    isInitialLoad = false;
+                }
             } else {
-                Swal.fire('Boa!', 'Dinheiro guardado com sucesso!', 'success');
+                db.collection("dados").doc("financeiro_vfinal").set(state);
             }
-        }
+        });
     }
-}
 
     // Funções de Registro
-  async function saveData(type, prefix) {
-    const valInput = document.getElementById(prefix + '-val');
-    const descInput = document.getElementById(prefix + '-desc');
-    const val = parseFloat(valInput.value);
-    const desc = descInput.value;
-    const owner = document.getElementById(prefix + '-owner').value;
-    let dateInput = document.getElementById(prefix + '-date')?.value || document.getElementById(prefix + '-month')?.value;
+    async function saveData(type, prefix) {
+        const val = parseFloat(document.getElementById(prefix+'-val').value);
+        const desc = document.getElementById(prefix+'-desc').value;
+        const owner = document.getElementById(prefix+'-owner').value;
+        let dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value;
 
-    if (!val || !desc) {
-        return Swal.fire('Aviso', 'Preencha o valor e a descrição!', 'warning');
+        if(!val || !desc) return Swal.fire('Aviso','Preencha os campos obrigatorios!','warning');
+        
+        if(!dateInput) dateInput = new Date().toISOString().split('T')[0];
+        if(dateInput.length === 7) dateInput += "-01";
+
+        const novoRegistro = { val, desc, date: dateInput, owner, id: Date.now() };
+        
+        state[type].push(novoRegistro);
+
+        try {
+            await db.collection("dados").doc("financeiro_vfinal").update(state);
+            Swal.fire({ icon:'success', title:'Salvo com sucesso!', timer:1200, showConfirmButton:false });
+            document.getElementById(prefix+'-val').value = '';
+            updateDash();
+        } catch(e) {
+            Swal.fire('Erro','Falha ao salvar no banco','error');
+        }
     }
 
-    if (!dateInput) dateInput = new Date().toISOString().split('T')[0];
-    if (dateInput.length === 7) dateInput += "-01";
-
-    // Adiciona ao estado local primeiro
-    const novoRegistro = { val, desc, date: dateInput, owner, id: Date.now() };
-    state[type].push(novoRegistro);
-
-    try {
-        // Usa SET com MERGE para garantir que crie o documento se ele não existir
-        await db.collection("dados").doc("financeiro_vfinal").set(state, { merge: true });
-        
-        Swal.fire({
-            icon: 'success',
-            title: 'Salvo com sucesso!',
-            timer: 1500,
-            showConfirmButton: false
-        });
-
-        // Limpa apenas o campo de valor e descrição
-        valInput.value = '';
-        if (prefix === 'ent' || prefix === 'sai') descInput.selectedIndex = 0;
-        
-        updateDash();
-    } catch (e) {
-        console.error("Erro detalhado:", e);
-        Swal.fire('Erro', 'Falha ao salvar: ' + e.message, 'error');
-    }
-}    async function deleteItem(type, id) {
+    async function deleteItem(type, id) {
         const res = await Swal.fire({ title: 'Excluir registro?', text: "Essa ação não pode ser desfeita.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#c0392b' });
         if (res.isConfirmed) {
             state[type] = state[type].filter(item => item.id !== id);
@@ -447,70 +373,203 @@ async function addViagemVal(id) {
     }
 
     // Viagens
-    function addCatItem() {
-        const nome = document.getElementById('via-cat-nome').value;
-        const valor = parseFloat(document.getElementById('via-cat-valor').value);
-        if(!valor) return;
-        itensTemp.push({ nome, valor, pago: false });
-        document.getElementById('via-cat-valor').value = '';
-        document.getElementById('temp-cats').innerHTML = itensTemp.map(i => `• ${i.nome}: R$ ${i.valor.toFixed(2)}`).join('<br>');
-    }
+let tempItems = [];
 
-    async function saveViagem() {
-        const destino = document.getElementById('via-destino').value;
-        const data = document.getElementById('via-data').value;
-        if(!destino || itensTemp.length === 0) return Swal.fire('Aviso', 'Preencha o destino e adicione itens!', 'warning');
-        
-        state.viagens.push({
+function addTempItem() {
+    const nome = document.getElementById('v-item-nome').value;
+    const valor = parseFloat(document.getElementById('v-item-val').value);
+    
+    if(!nome || isNaN(valor)) {
+        Swal.fire('Aviso', 'Preencha o nome e o valor corretamente!', 'warning');
+        return;
+    }
+    
+    tempItems.push({ id: Date.now(), nome, valor, pago: false });
+    
+    // Limpa campos
+    document.getElementById('v-item-nome').value = '';
+    document.getElementById('v-item-val').value = '';
+    
+    // Atualiza a lista visual
+    const listDiv = document.getElementById('v-items-list');
+    listDiv.style.display = 'block';
+    listDiv.innerHTML = tempItems.map(i => 
+        `<div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #ddd;">
+            <span>• ${i.nome}</span>
+            <b>R$ ${i.valor.toFixed(2)}</b>
+        </div>`
+    ).join('');
+}
+function createViagem() {
+    try {
+        const nomeInput = document.getElementById('v-nome');
+        const dataInput = document.getElementById('v-data');
+        const nome = nomeInput.value;
+        const data = dataInput.value;
+
+        if (!nome || tempItems.length === 0) {
+            Swal.fire('Aviso', 'Preencha o destino e adicione pelo menos um custo!', 'warning');
+            return;
+        }
+
+        const novaViagem = {
             id: Date.now(),
-            destino,
-            data,
-            meta: itensTemp.reduce((a, b) => a + b.valor, 0),
+            nome: nome,
+            data: data,
+            total: tempItems.reduce((acc, curr) => acc + (curr.valor || 0), 0),
             juntado: 0,
-            itens: [...itensTemp],
-            milestones: []
-        });
-        
-        itensTemp = [];
-        document.getElementById('via-destino').value = '';
-        document.getElementById('temp-cats').innerHTML = '';
-        await db.collection("dados").doc("financeiro_vfinal").set(state);
-        Swal.fire('Sucesso', 'Viagem criada!', 'success');
+            itens: [...tempItems]
+        };
+
+        state.viagens.push(novaViagem);
+        persist(); // Chama a função que está logo abaixo
+
+        // Limpeza dos campos
+        tempItems = [];
+        const listDiv = document.getElementById('v-items-list');
+        if (listDiv) {
+            listDiv.innerHTML = '';
+            listDiv.style.display = 'none';
+        }
+        nomeInput.value = '';
+        dataInput.value = '';
+
         renderViagens();
-    }
+        Swal.fire('Sucesso!', 'Viagem criada com sucesso!', 'success');
 
-    function renderViagens() {
-        const div = document.getElementById('lista-viagens');
-        div.innerHTML = (state.viagens || []).map(v => {
-            const perc = v.meta > 0 ? (v.juntado / v.meta) * 100 : 0;
-            return `
-                <div class="viagem-card">
-                    <div style="display:flex; justify-content:space-between;">
-                        <h3>${v.destino}</h3>
-                        <i class="fas fa-trash" style="color:red; cursor:pointer" onclick="deleteItem('viagens', ${v.id})"></i>
-                    </div>
-                    <p style="font-size:0.85rem;">Meta: R$ ${v.meta.toFixed(2)} | Juntado: R$ ${v.juntado.toFixed(2)}</p>
-                    <div class="progress-bg"><div class="progress-fill" style="width:${Math.min(perc, 100)}%"></div></div>
-                    <div class="milestones">
-                        <span class="${perc>=25?'active':''}">25%</span>
-                        <span class="${perc>=50?'active':''}">50%</span>
-                        <span class="${perc>=75?'active':''}">75%</span>
-                        <span class="${perc>=100?'active':''}">100%</span>
-                    </div>
-                    <button class="btn-add" style="margin-top:10px" onclick="addViagemVal(${v.id})">Adicionar Valor</button>
-                </div>`;
-        }).join('');
+    } catch (error) {
+        console.error("Erro ao criar viagem:", error);
+        Swal.fire('Erro', 'Ocorreu um erro ao salvar a viagem.', 'error');
     }
+} // <--- ESTA CHAVE FECHA A FUNÇÃO CREATEVIAGEM
 
-    async function addViagemVal(id) {
-        const { value: extra } = await Swal.fire({ title: 'Quanto quer guardar?', input: 'number', showCancelButton: true });
-        if(!extra) return;
+function persist() { 
+    // Salva no LocalStorage e no Firebase para garantir sincronia
+    localStorage.setItem('fin_casal_vfinal', JSON.stringify(state)); 
+    db.collection("dados").doc("financeiro_vfinal").update(state).catch(e => console.error("Erro Firebase:", e));
+}// A DEFINIÇÃO da função persist deve ficar aqui fora, sozinha:
+function persist() { 
+    localStorage.setItem('fin_casal_vfinal', JSON.stringify(state)); 
+    // Se você estiver usando Firebase, adicione a linha abaixo também:
+    // db.collection("dados").doc("financeiro_vfinal").set(state);
+} // <--- ESTA CHAVE FECHA A FUNÇÃO CREATEVIAGEM (O QUE ESTAVA FALTANDO)
+
+function deleteViagem(id) { 
+    if(confirm("Excluir viagem?")) { 
+        state.viagens = state.viagens.filter(x => x.id !== id); 
+        persist(); 
+        renderViagens(); 
+    } 
+}
+
+async function addMoneyV(id) {
+    const { value: val } = await Swal.fire({
+        title: 'Guardar Dinheiro',
+        input: 'number',
+        inputLabel: 'Quanto você conseguiu juntar?',
+        inputAttributes: { step: '0.01' },
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        confirmButtonColor: '#2d5a27'
+    });
+
+    if(val) {
+        const valorAdicionado = parseFloat(val);
         const v = state.viagens.find(x => x.id === id);
-        v.juntado += parseFloat(extra);
-        await db.collection("dados").doc("financeiro_vfinal").set(state);
+        v.juntado += valorAdicionado;
+
+        let pool = v.juntado;
+        let itensRecemPagos = [];
+
+        // Verifica quais itens foram pagos com o novo saldo
+        v.itens.forEach(item => {
+            if (pool >= item.valor) {
+                if (!item.pago) {
+                    item.pago = true;
+                    itensRecemPagos.push(item.nome); 
+                }
+                pool -= item.valor; 
+            } else {
+                item.pago = false;
+            }
+        });
+
+        persist(); 
         renderViagens();
-        Swal.fire('Boa!', 'Valor adicionado com sucesso', 'success');
+
+        if (v.juntado >= v.total) {
+            Swal.fire('🎉 VIAGEM 100% GARANTIDA!', 'Você bateu a meta completa! Faça as malas!', 'success');
+        } else if (itensRecemPagos.length > 0) {
+            Swal.fire({
+                title: 'Meta Atingida! 🎯',
+                text: `Com esse valor, você acabou de garantir: ${itensRecemPagos.join(', ')}!`,
+                icon: 'success'
+            });
+        } else {
+            Swal.fire('Boa!', 'Dinheiro guardado. O potinho está enchendo!', 'success');
+        }
     }
+}
+
+// Garanta que esta função esteja fora de qualquer outra chave
+    function persist() { 
+    localStorage.setItem('fin_casal_vfinal', JSON.stringify(state)); 
+}
+
+function renderViagens() {
+    const div = document.getElementById('lista-viagens');
+    if (!div) return;
+
+    div.innerHTML = state.viagens.map(v => {
+        // Garante que os valores existam para não dar erro de undefined
+        const total = v.total || 0;
+        const juntado = v.juntado || 0;
+        const perc = total > 0 ? Math.min((juntado / total) * 100, 100) : 0;
+        
+        const isG = (p) => perc >= p ? 'status-green' : 'status-red';
+        const icon = (p) => perc >= p ? 'fa-check-circle' : 'fa-circle';
+        
+        const itensHTML = (v.itens || []).map(i => {
+            const valorItem = i.valor || 0; // Evita erro no toFixed aqui também
+            return `
+                <span style="display:inline-block; margin-right:15px; margin-bottom:5px; font-size: 0.85rem; color:${i.pago ? 'var(--verde-sucesso)' : '#888'}">
+                    <i class="fas ${i.pago ? 'fa-check-circle' : 'fa-hourglass-half'}"></i> 
+                    <span style="${i.pago ? 'text-decoration: line-through;' : ''}">${i.nome}</span> (R$ ${valorItem.toFixed(2)})
+                </span>
+            `;
+        }).join('');
+
+        return `
+            <div class="viagem-item" style="border:1px solid #eee; padding:20px; margin-top:15px; border-radius:15px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="color: var(--verde-arvore)">${v.nome}</h3>
+                    <button onclick="deleteViagem(${v.id})" style="color:var(--vermelho); border:none; background:none; cursor:pointer; font-size:1.1rem;"><i class="fas fa-trash"></i></button>
+                </div>
+                
+                <p style="margin: 10px 0; font-size: 0.9rem;">
+                    <b>Meta:</b> R$ ${total.toFixed(2)} | <b>Falta:</b> R$ ${Math.max((total - juntado), 0).toFixed(2)}
+                </p>
+                
+                <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #ddd;">
+                    ${itensHTML}
+                </div>
+
+                <div class="progress-container" style="background: #e0e0e0;">
+                    <div class="progress-bar" style="width: ${perc}%; background: ${perc>=100?'var(--verde-sucesso)':'var(--verde-arvore)'}"></div>
+                </div>
+                
+                <div class="milestones">
+                    <div class="${isG(25)}"><i class="fas ${icon(25)}"></i> 25%</div>
+                    <div class="${isG(50)}"><i class="fas ${icon(50)}"></i> 50%</div>
+                    <div class="${isG(75)}"><i class="fas ${icon(75)}"></i> 75%</div>
+                    <div class="${isG(100)}"><i class="fas ${icon(100)}"></i> 100%</div>
+                </div>
+                
+                <button class="btn-add" onclick="addMoneyV(${v.id})" style="margin-top:15px;"><i class="fas fa-piggy-bank"></i> + Guardar Dinheiro</button>
+            </div>
+        `;
+    }).join('');
+}
 </script>
 </body>
 </html>
