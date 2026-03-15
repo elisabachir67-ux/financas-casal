@@ -507,25 +507,50 @@ function doLogin() {
         renderViagens();
     }
 
-    async function saveData(type, prefix) {
-        const val = parseFloat(document.getElementById(prefix+'-val').value);
-        const desc = document.getElementById(prefix+'-desc').value;
-        const dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value || new Date().toISOString().split('T')[0];
-        const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
-        if(!val || !desc) return Swal.fire('Aviso', 'Preencha tudo!', 'warning');
-       if(!state[type]) state[type] = [];
+async function saveData(type, prefix) {
 
-state[type].push({
-    val,
-    desc,
-    date: dateInput.length === 7 ? dateInput + "-01" : dateInput,
-    owner,
-    id: Date.now()
-});
-        await db.collection("dados").doc("financeiro_vfinal").set(state);
-        Swal.fire('Sucesso', 'Salvo!', 'success');
-        document.getElementById(prefix+'-val').value = '';
+    const val = parseFloat(document.getElementById(prefix+'-val').value);
+    const desc = document.getElementById(prefix+'-desc').value;
+    const dateInput = document.getElementById(prefix+'-date')?.value 
+        || document.getElementById(prefix+'-month')?.value 
+        || new Date().toISOString().split('T')[0];
+
+    const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
+
+    if(!val || !desc){
+        Swal.fire('Aviso','Preencha tudo!','warning');
+        return;
     }
+
+    if(!state[type]) state[type] = [];
+
+    state[type].push({
+        val,
+        desc,
+        date: dateInput.length === 7 ? dateInput + "-01" : dateInput,
+        owner,
+        id: Date.now()
+    });
+
+    try {
+
+        await db.collection("dados").doc("financeiro_vfinal").set(state);
+
+        Swal.fire({
+            icon:'success',
+            title:'Salvo!',
+            timer:1200,
+            showConfirmButton:false
+        });
+
+        document.getElementById(prefix+'-val').value='';
+
+    } catch(e){
+
+        Swal.fire('Erro','Não foi possível salvar','error');
+
+    }
+}
 
     async function deleteItem(type, id) {
         const res = await Swal.fire({ title: 'Excluir?', icon: 'warning', showCancelButton: true });
