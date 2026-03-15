@@ -269,28 +269,22 @@
         if(id === 'viagens') renderViagens();
     }
 
-    // Sincronização
-    function initSync() {
-        db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
-            if(doc.exists) {
-                state = doc.data();
-                // Garantir arrays inicializados
-                state.entries = state.entries || [];
-                state.outs = state.outs || [];
-                state.fixos = state.fixos || [];
-                state.viagens = state.viagens || [];
-                
-                if (isInitialLoad) {
-                    updateDash();
-                    renderViagens();
-                    isInitialLoad = false;
-                }
-            } else {
-                db.collection("dados").doc("financeiro_vfinal").set(state);
-            }
-        });
-    }
-
+// Sincronização:
+function initSync() {
+    db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
+        if(doc.exists) {
+            state = doc.data();
+            // Garante que se o banco estiver vazio, ele inicialize como lista vazia
+            state.entries = state.entries || [];
+            state.outs = state.outs || [];
+            state.fixos = state.fixos || [];
+            state.viagens = state.viagens || [];
+            
+            renderViagens();
+            updateDash();
+        }
+    });
+}
     // Funções de Registro
     async function saveData(type, prefix) {
         const val = parseFloat(document.getElementById(prefix+'-val').value);
@@ -400,59 +394,90 @@ function addTempItem() {
         </div>`
     ).join('');
 }
+// Procure por function createViagem() e substitua por esta:
+// 1. FUNÇÃO PARA CRIAR VIAGEM (COM TRAVA ANTI-UNDEFINED)
 function createViagem() {
-    try {
-        const nomeInput = document.getElementById('v-nome');
-        const dataInput = document.getElementById('v-data');
-        const nome = nomeInput.value;
-        const data = dataInput.value;
+    const nomeInput = document.getElementById('v-nome');
+    const dataInput = document.getElementById('v-data');
 
-        if (!nome || tempItems.length === 0) {
-            Swal.fire('Aviso', 'Preencha o destino e adicione pelo menos um custo!', 'warning');
-            return;
-        }
-
-        const novaViagem = {
-            id: Date.now(),
-            nome: nome,
-            data: data,
-            total: tempItems.reduce((acc, curr) => acc + (curr.valor || 0), 0),
-            juntado: 0,
-            itens: [...tempItems]
-        };
-
-        state.viagens.push(novaViagem);
-        persist(); // Chama a função que está logo abaixo
-
-        // Limpeza dos campos
-        tempItems = [];
-        const listDiv = document.getElementById('v-items-list');
-        if (listDiv) {
-            listDiv.innerHTML = '';
-            listDiv.style.display = 'none';
-        }
-        nomeInput.value = '';
-        dataInput.value = '';
-
-        renderViagens();
-        Swal.fire('Sucesso!', 'Viagem criada com sucesso!', 'success');
-
-    } catch (error) {
-        console.error("Erro ao criar viagem:", error);
-        Swal.fire('Erro', 'Ocorreu um erro ao salvar a viagem.', 'error');
+    // Se o nome for vazio, ele para aqui e não salva nada
+    if (!nomeInput.value || nomeInput.value.trim() === "") {
+        Swal.fire('Aviso', 'Digite o destino da viagem!', 'warning');
+        return;
     }
-} // <--- ESTA CHAVE FECHA A FUNÇÃO CREATEVIAGEM
 
-function persist() { 
-    // Salva no LocalStorage e no Firebase para garantir sincronia
-    localStorage.setItem('fin_casal_vfinal', JSON.stringify(state)); 
-    db.collection("dados").doc("financeiro_vfinal").update(state).catch(e => console.error("Erro Firebase:", e));
-}// A DEFINIÇÃO da função persist deve ficar aqui fora, sozinha:
-function persist() { 
-    localStorage.setItem('fin_casal_vfinal', JSON.stringify(state)); 
-    // Se você estiver usando Firebase, adicione a linha abaixo também:
-    // db.collection("dados").doc("financeiro_vfinal").set(state);
-} // <--- ESTA CHAVE FECHA A FUNÇÃO CREATEVIAGEM (O QUE ESTAVA FALTANDO)
+    const novaViagem = {
+        id: Date.now(),
+        nome: nomeInput.value.trim(),
+        data: dataInput.value || "A definir",
+        total: tempItems.reduce((acc, curr) => acc + (curr.valor || 0), 0),
+        juntado: 0,
+        itens: [...tempItems],
+        historico: []
+    };
+
+    // Adiciona ao estado e limpa os campos IMEDIATAMENTE
+    state.viagens.push(novaViagem);
+    
+    tempItems = [];
+    const listDiv = document.getElementById('v-items-list');
+    if (listDiv) listDiv.innerHTML = '';
+    
+    nomeInput.value = '';
+    dataInput.value = '';
+
+    persist(); // Envia para o Firebase
+    renderViagens();
+    Swal.fire('Sucesso!', 'Viagem criada!', 'success');
+}
+
+// 2. FUNÇÃO PERSIST (UNIFICADA - APAGUE AS OUTRAS QUE TIVEREM ESSE NOME)
+async function persist() { 
+    try {
+        // Salva apenas no Firebase para evitar conflitos
+        await db.collection("dados").doc("financeiro_vfinal").set(state);
+        console.log("Dados sincronizados!");
+    } catch (e) {
+        console.error("Erro ao salvar:", e);
+    }
+}
+
+// 3. FUNÇÃO DE RENDERIZAR (SEGURA)
+function renderViagens() {
+    const div = document.getElementById('lista-viagens');
+    if (!div || !state.viagens) return;
+
+    div.innerHTML = state.viagens.map(v => {
+        // Se por algum motivo houver um dado corrompido, ele ignora
+        if (!v.nome) return ''; 
+
+        const total = v.total || 0;
+        const juntado = v.juntado || 0;
+        const perc = total > 0 ? Math.min((juntado / total) * 100, 100) : 0;
+        
+        return `
+            <div class="card" style="margin-top:20px; border-left: 5px solid var(--verde-arvore);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="color: var(--verde-arvore)">${v.nome} <br><small style="color:#666; font-size:0.8rem;">${v.data}</small></h3>
+                    <button onclick="deleteViagem(${v.id})" style="width:auto; background:none; border:none; color:var(--vermelho); cursor:pointer;"><i class="fas fa-trash"></i></button>
+                </div>
+                <p style="margin: 10px 0;">Meta: R$ ${total.toFixed(2)} | Falta: R$ ${Math.max(total - juntado, 0).toFixed(2)}</p>
+                <div class="progress-container" style="background:#eee; height:12px; border-radius:10px; overflow:hidden;">
+                    <div style="width:${perc}%; height:100%; background:var(--verde-arvore); transition:0.5s;"></div>
+                </div>
+                <button class="btn-add" onclick="addMoneyV(${v.id})" style="margin-top:15px;"><i class="fas fa-piggy-bank"></i> + GUARDAR DINHEIRO</button>
+            </div>
+        `;
+    }).join('');
+}
+async function persist() { 
+    try {
+        await db.collection("dados").doc("financeiro_vfinal").update(state);
+    } catch(e) {
+        // Se o documento não existir no Firebase, ele cria do zero
+        await db.collection("dados").doc("financeiro_vfinal").set(state);
+    }
+}
 
 function deleteViagem(id) { 
     if(confirm("Excluir viagem?")) { 
