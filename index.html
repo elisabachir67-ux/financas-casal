@@ -399,7 +399,12 @@ function doLogin() {
     function sync() {
         db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
             if(doc.exists) {
-                state = doc.data();
+                state = doc.data() || state;
+
+state.entries = state.entries || [];
+state.outs = state.outs || [];
+state.fixos = state.fixos || [];
+state.viagens = state.viagens || [];
                 if(!document.getElementById('sec-dashboard').classList.contains('hidden')) updateDash();
                 if(!document.getElementById('sec-viagens').classList.contains('hidden')) renderViagens();
             } else { db.collection("dados").doc("financeiro_vfinal").set(state); }
@@ -511,9 +516,13 @@ async function saveData(type, prefix) {
 
     const val = parseFloat(document.getElementById(prefix+'-val').value);
     const desc = document.getElementById(prefix+'-desc').value;
-    const dateInput = document.getElementById(prefix+'-date')?.value 
-        || document.getElementById(prefix+'-month')?.value 
-        || new Date().toISOString().split('T')[0];
+
+    let dateInput = document.getElementById(prefix+'-date')?.value 
+        || document.getElementById(prefix+'-month')?.value;
+
+    if(!dateInput){
+        dateInput = new Date().toISOString().split('T')[0];
+    }
 
     const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
 
@@ -524,6 +533,7 @@ async function saveData(type, prefix) {
 
     if(!state[type]) state[type] = [];
 
+    if(!state[type]) state[type] = [];
     state[type].push({
         val,
         desc,
