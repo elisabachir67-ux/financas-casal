@@ -248,27 +248,108 @@
         if(id === 'viagens') renderViagens();
     }
 
-    // Sincronização
-    function initSync() {
-        db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
-            if(doc.exists) {
-                state = doc.data();
-                // Garantir arrays inicializados
-                state.entries = state.entries || [];
-                state.outs = state.outs || [];
-                state.fixos = state.fixos || [];
-                state.viagens = state.viagens || [];
-                
-                if (isInitialLoad) {
-                    updateDash();
-                    renderViagens();
-                    isInitialLoad = false;
-                }
-            } else {
-                db.collection("dados").doc("financeiro_vfinal").set(state);
+    // Sincronização Corrigida
+function initSync() {
+    db.collection("dados").doc("financeiro_vfinal").onSnapshot(doc => {
+        if(doc.exists) {
+            const data = doc.data();
+            // Garante que se o campo não existir no banco, ele vire um array vazio e não quebre o código
+            state.entries = data.entries || [];
+            state.outs = data.outs || [];
+            state.fixos = data.fixos || [];
+            state.viagens = data.viagens || [];
+            
+            // Atualiza as telas sempre que houver mudança no banco
+            if (document.getElementById('sec-viagens').classList.contains('hidden') === false) {
+                renderViagens();
             }
-        });
+            if (document.getElementById('sec-dashboard').classList.contains('hidden') === false) {
+                updateDash();
+            }
+        } else {
+            db.collection("dados").doc("financeiro_vfinal").set(state);
+        }
+    });
+}
+
+// Renderizar Viagens Corrigido
+function renderViagens() {
+    const div = document.getElementById('lista-viagens');
+    if (!div) return;
+
+    if (state.viagens.length === 0) {
+        div.innerHTML = '<p style="text-align:center; margin-top:20px; color:#666;">Nenhuma viagem planejada.</p>';
+        return;
     }
+
+    div.innerHTML = state.viagens.map(v => {
+        const meta = parseFloat(v.meta) || 0;
+        const juntado = parseFloat(v.juntado) || 0;
+        const perc = meta > 0 ? (juntado / meta) * 100 : 0;
+        
+        return `
+            <div class="viagem-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="color:var(--verde-arvore)">✈️ ${v.destino}</h3>
+                    <button class="btn-delete" onclick="deleteItem('viagens', ${v.id})"><i class="fas fa-trash"></i></button>
+                </div>
+                <p style="font-size:0.85rem; margin: 10px 0;">
+                    <b>Meta:</b> R$ ${meta.toFixed(2)} | <b>Juntado:</b> R$ ${juntado.toFixed(2)}
+                </p>
+                <div class="progress-bg">
+                    <div class="progress-fill" style="width:${Math.min(perc, 100)}%"></div>
+                </div>
+                <div class="milestones">
+                    <span class="milestone ${perc>=25?'active':''}">25%</span>
+                    <span class="milestone ${perc>=50?'active':''}">50%</span>
+                    <span class="milestone ${perc>=75?'active':''}">75%</span>
+                    <span class="milestone ${perc>=100?'active':''}">100%</span>
+                </div>
+                <button class="btn-add" style="margin-top:15px; background:#4a7c43" onclick="addViagemVal(${v.id})">
+                    <i class="fas fa-piggy-bank"></i> Adicionar Valor
+                </button>
+            </div>`;
+    }).join('');
+}
+
+// Adicionar Valor Corrigido com Mensagem de Parabéns
+async function addViagemVal(id) {
+    const { value: extra } = await Swal.fire({ 
+        title: 'Quanto quer guardar?', 
+        input: 'number', 
+        inputAttributes: { step: '0.01' },
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if(extra) {
+        const valorAdicional = parseFloat(extra);
+        const index = state.viagens.findIndex(x => x.id === id);
+        
+        if (index !== -1) {
+            const v = state.viagens[index];
+            const antigoJuntado = v.juntado;
+            v.juntado += valorAdicional;
+
+            await db.collection("dados").doc("financeiro_vfinal").update({
+                viagens: state.viagens
+            });
+
+            // Mensagem de Parabéns se completar a meta
+            if (v.juntado >= v.meta && antigoJuntado < v.meta) {
+                Swal.fire({
+                    title: '🎉 PARABÉNS!',
+                    text: `Você atingiu a meta para ${v.destino}! Partiu viajar?`,
+                    icon: 'success',
+                    confirmButtonColor: '#2d5a27'
+                });
+            } else {
+                Swal.fire('Boa!', 'Dinheiro guardado com sucesso!', 'success');
+            }
+        }
+    }
+}
 
     // Funções de Registro
   async function saveData(type, prefix) {
