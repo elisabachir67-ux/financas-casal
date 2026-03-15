@@ -271,8 +271,7 @@
     }
 
     // Funções de Registro
-    async function saveData(type, prefix) {
-   async function saveData(type, prefix) {
+  async function saveData(type, prefix) {
     const valInput = document.getElementById(prefix + '-val');
     const descInput = document.getElementById(prefix + '-desc');
     const val = parseFloat(valInput.value);
@@ -311,8 +310,7 @@
         console.error("Erro detalhado:", e);
         Swal.fire('Erro', 'Falha ao salvar: ' + e.message, 'error');
     }
-}
-    async function deleteItem(type, id) {
+}    async function deleteItem(type, id) {
         const res = await Swal.fire({ title: 'Excluir registro?', text: "Essa ação não pode ser desfeita.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#c0392b' });
         if (res.isConfirmed) {
             state[type] = state[type].filter(item => item.id !== id);
