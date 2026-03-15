@@ -356,6 +356,10 @@ header h3 {
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let state = { entries: [], outs: [], fixos: [], viagens: [] };
+    state.entries = state.entries || [];
+    state.outs = state.outs || [];
+    state.fixos = state.fixos || [];
+    state.viagens = state.viagens || [];
     let itensTemp = [];
 
 function doLogin() {
@@ -417,7 +421,7 @@ function doLogin() {
         if(!destino || itensTemp.length === 0) return Swal.fire('Aviso', 'Preencha o destino e adicione itens!', 'warning');
         
         const totalMeta = itensTemp.reduce((a, b) => a + b.valor, 0);
-        if(!state.viagens) state.viagens = [];
+        state.viagens = state.viagens || [];
         
         state.viagens.push({
             id: Date.now(),
@@ -470,7 +474,7 @@ function doLogin() {
 
     async function addViagemVal(id) {
         const { value: extra } = await Swal.fire({ title: 'Adicionar à reserva', input: 'number', showCancelButton: true });
-        if(!extra) return;
+        if(!extra || isNaN(extra)) return;
 
         const v = state.viagens.find(x => x.id === id);
         v.juntado += parseFloat(extra);
@@ -509,7 +513,15 @@ function doLogin() {
         const dateInput = document.getElementById(prefix+'-date')?.value || document.getElementById(prefix+'-month')?.value || new Date().toISOString().split('T')[0];
         const owner = document.getElementById(prefix+'-owner')?.value || 'Conjunto';
         if(!val || !desc) return Swal.fire('Aviso', 'Preencha tudo!', 'warning');
-        state[type].push({ val, desc, date: dateInput.length === 7 ? dateInput + "-01" : dateInput, owner, id: Date.now() });
+       if(!state[type]) state[type] = [];
+
+state[type].push({
+    val,
+    desc,
+    date: dateInput.length === 7 ? dateInput + "-01" : dateInput,
+    owner,
+    id: Date.now()
+});
         await db.collection("dados").doc("financeiro_vfinal").set(state);
         Swal.fire('Sucesso', 'Salvo!', 'success');
         document.getElementById(prefix+'-val').value = '';
